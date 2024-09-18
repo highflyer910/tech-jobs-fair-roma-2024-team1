@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
+import TimePicker from 'react-time-picker';
 import 'react-calendar/dist/Calendar.css';
+import 'react-time-picker/dist/TimePicker.css';
 import styles from './HabitPage.module.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const HabitPage = () => {
   const [dates, setDates] = useState([]);
@@ -13,6 +17,7 @@ const HabitPage = () => {
   const [habits, setHabits] = useState([]);
   const [newHabitName, setNewHabitName] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState('09:00');
   const [nameError, setNameError] = useState('');
 
   const navigate = useNavigate();
@@ -34,6 +39,37 @@ const HabitPage = () => {
     setDates(dateArray);
   };
 
+  const scheduleNotification = (habit) => {
+    const now = new Date();
+    let notificationTime;
+
+    if (habit.frequency === 'everyday') {
+      notificationTime = new Date(now.setHours(habit.reminderTime.split(':')[0], habit.reminderTime.split(':')[1], 0, 0));
+      if (notificationTime <= now) {
+        notificationTime.setDate(notificationTime.getDate() + 1);
+      }
+    } else if (habit.frequency === 'every3days') {
+      notificationTime = new Date(now.setDate(now.getDate() + 3));
+      notificationTime.setHours(habit.reminderTime.split(':')[0], habit.reminderTime.split(':')[1], 0, 0);
+    } else if (habit.frequency === 'onceaweek') {
+      notificationTime = new Date(now.setDate(now.getDate() + 7));
+      notificationTime.setHours(habit.reminderTime.split(':')[0], habit.reminderTime.split(':')[1], 0, 0);
+    } else if (habit.reminderDate) {
+      notificationTime = new Date(habit.reminderDate);
+      notificationTime.setHours(habit.reminderTime.split(':')[0], habit.reminderTime.split(':')[1], 0, 0);
+    }
+
+    if (notificationTime && notificationTime > now) {
+      const timeUntilNotification = notificationTime.getTime() - now.getTime();
+      setTimeout(() => {
+        toast.info(`Reminder: It's time for your habit "${habit.name}"!`);
+        if (habit.frequency !== 'none') {
+          scheduleNotification(habit); 
+        }
+      }, timeUntilNotification);
+    }
+  };
+
   useEffect(() => {
     getCalendarDates();
     const storedHabits = JSON.parse(localStorage.getItem('habits')) || [];
@@ -42,16 +78,23 @@ const HabitPage = () => {
       ...habit,
       completions: Array.isArray(habit.completions) ? habit.completions : Array(7).fill(false),
       dates: habit.dates ? habit.dates.map(date => new Date(date)) : [],
-      reminderDate: habit.reminderDate ? new Date(habit.reminderDate) : null
+      reminderDate: habit.reminderDate ? new Date(habit.reminderDate) : null,
+      reminderTime: habit.reminderTime || '09:00'
     }));
     
     setHabits(validatedHabits);
+
+    validatedHabits.forEach(habit => {
+      if (habit.reminder) {
+        scheduleNotification(habit);
+      }
+    });
 
     const storedDate = localStorage.getItem('selectedDate');
     if (storedDate) {
       setSelectedDate(new Date(storedDate));
     }
-  }, []);
+  });
 
   const handleModalToggle = () => setShowModal(!showModal);
   const handleCalendarToggle = () => setShowCalendar(!showCalendar);
@@ -63,21 +106,27 @@ const HabitPage = () => {
     }
     setNameError('');
     if (newHabitName.trim() !== '') {
-      const frequency = document.getElementById('habitFrequency').value; 
+      const frequency = document.getElementById('habitFrequency').value;
       const newHabit = {
         name: newHabitName,
         completions: Array(7).fill(false),
-        frequency: frequency, 
+        frequency: frequency,
         reminder: reminder,
         dates: [],
-        reminderDate: selectedDate
+        reminderDate: selectedDate,
+        reminderTime: selectedTime
       };
       const updatedHabits = [...habits, newHabit];
       setHabits(updatedHabits);
       localStorage.setItem('habits', JSON.stringify(updatedHabits));
       setNewHabitName('');
-      setReminder(false); 
+      setReminder(false);
+      setSelectedTime('09:00');
       handleModalToggle();
+
+      if (reminder) {
+        scheduleNotification(newHabit);
+      }
     }
   };
 
@@ -195,27 +244,28 @@ const HabitPage = () => {
           </Modal.Header>
           <Modal.Body className={`${styles.modalBody}`}>
             <Form>
-            <Form.Group controlId="habitName">
-              <Form.Label htmlFor="habitName" className="text-white">Name</Form.Label>
-              <Form.Control
-                id="habitName"
-                type="text"
-                placeholder="Enter habit"
-                className={`${styles.inputField} ${nameError ? 'is-invalid' : ''}`}
-                value={newHabitName}
-                onChange={(e) => {
-                  setNewHabitName(e.target.value);
-                  if (e.target.value.trim() !== '') {
-                    setNameError('');
-                  }
-                }}
-              />
-              {nameError && <div className="invalid-feedback">{nameError}</div>}
-            </Form.Group>
+              <Form.Group controlId="habitName">
+                <Form.Label htmlFor="habitName" className="text-white">Name</Form.Label>
+                <Form.Control
+                  id="habitName"
+                  type="text"
+                  placeholder="Enter habit"
+                  className={`${styles.inputField} ${nameError ? 'is-invalid' : ''}`}
+                  value={newHabitName}
+                  onChange={(e) => {
+                    setNewHabitName(e.target.value);
+                    if (e.target.value.trim() !== '') {
+                      setNameError('');
+                    }
+                  }}
+                />
+                {nameError && <div className="invalid-feedback">{nameError}</div>}
+              </Form.Group>
 
               <Form.Group controlId="habitFrequency" className="mt-3">
                 <Form.Label htmlFor="habitFrequency" className="text-white">Frequency</Form.Label>
                 <Form.Select id="habitFrequency" className={styles.inputField}>
+                  <option value="none">None</option>
                   <option value="everyday">Everyday</option>
                   <option value="every3days">Every 3 Days</option>
                   <option value="onceaweek">Once a Week</option>
@@ -233,15 +283,33 @@ const HabitPage = () => {
                 />
               </Form.Group>
 
-              <Form.Group controlId="habitDate" className="mt-3">
-                <Form.Label htmlFor="habitDate" className="text-white">Select Date</Form.Label>
-                <Form.Control
-                  id="habitDate"
-                  type="date"
-                  className={`${styles.inputField} mx-auto`}
-                  onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                />
-              </Form.Group>
+              {reminder && (
+                <>
+                  <Form.Group controlId="habitDate" className="mt-3">
+                    <Form.Label htmlFor="habitDate" className="text-white">Select Date</Form.Label>
+                    <Form.Control
+                      id="habitDate"
+                      type="date"
+                      className={`${styles.inputField} mx-auto`}
+                      onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                    />
+                  </Form.Group>
+
+                  <Form.Group controlId="habitTime" className="mt-3">
+  <Form.Label htmlFor="habitTime" className="text-white">Select Time</Form.Label>
+  <TimePicker
+    onChange={setSelectedTime}
+    value={selectedTime}
+    className={`${styles.inputField} mx-2 border-white bg-transparent text-white`}
+    disableClock={true}
+    clearIcon={null}
+    clockIcon={null}
+    format="h:mm a"
+    portalClassName="time-picker-portal"
+  />
+</Form.Group>
+                </>
+              )}
 
               <Button variant="outline-light" onClick={handleSaveHabit} className={`${styles.saveButton} mt-4 w-100`}>
                 Save Habit
@@ -251,30 +319,31 @@ const HabitPage = () => {
         </Modal>
 
         <Modal 
-        show={showCalendar} 
-        onHide={handleCalendarToggle} 
-        centered
-        className={styles.calendarModal}
-      >
-        <Modal.Header closeButton className={styles.calendarModalHeader}>
-          <Modal.Title>Habits Calendar</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className={styles.calendarModalBody}>
-          <Calendar
-            onChange={handleDateChange}
-            value={selectedDate}
-            className={styles.customCalendar}
-            tileClassName={({ date, view }) => 
-              view === 'month' && 
-              (habits.some(habit => habit.dates.some(d => d.toDateString() === date.toDateString())) ||
-               habits.some(habit => habit.reminderDate && habit.reminderDate.toDateString() === date.toDateString()))
-                ? styles.hasHabit 
-                : null
-            }
-          />
-        </Modal.Body>
-      </Modal>
+          show={showCalendar} 
+          onHide={handleCalendarToggle} 
+          centered
+          className={styles.calendarModal}
+        >
+          <Modal.Header closeButton className={styles.calendarModalHeader}>
+            <Modal.Title>Habits Calendar</Modal.Title>
+          </Modal.Header>
+          <Modal.Body className={styles.calendarModalBody}>
+            <Calendar
+              onChange={handleDateChange}
+              value={selectedDate}
+              className={styles.customCalendar}
+              tileClassName={({ date, view }) => 
+                view === 'month' && 
+                (habits.some(habit => habit.dates.some(d => d.toDateString() === date.toDateString())) ||
+                 habits.some(habit => habit.reminderDate && habit.reminderDate.toDateString() === date.toDateString()))
+                  ? styles.hasHabit 
+                  : null
+              }
+            />
+          </Modal.Body>
+        </Modal>
       </div>
+      <ToastContainer />
     </div>
   );
 };

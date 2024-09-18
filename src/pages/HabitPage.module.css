@@ -291,3 +291,31 @@ h2{
 .hasHabit {
   background-color: #353477;
 }
+
+.time-picker-portal .react-time-picker__wrapper {
+  border-color: white;
+}
+
+.time-picker-portal .react-time-picker__inputGroup {
+  color: white;
+}
+
+.time-picker-portal .react-time-picker__button {
+  stroke: white;
+}
+
+.time-picker-portal .react-time-picker__button:enabled:hover .react-time-picker__button__icon,
+.time-picker-portal .react-time-picker__button:enabled:focus .react-time-picker__button__icon {
+  stroke: #ccc;
+}
+
+.time-picker-portal .react-time-picker__inputGroup__input {
+  color: white;
+}
+
+.time-picker-portal .react-time-picker__inputGroup__amPm {
+  background-color: #333 !important;
+  color: white;
+}
+
+
