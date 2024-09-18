@@ -22,13 +22,14 @@ const HabitChartPage = () => {
       
       const dates = eachDayOfInterval({ start: startDate, end: today });
       
-      const data = dates.map(date => {
+      const data = dates.map((date, index) => {
         const dateString = format(date, 'yyyy-MM-dd');
         const habitCompletions = {};
         
         habits.forEach(habit => {
-          const dayIndex = period === 'week' ? 6 - Math.floor((today - date) / (1000 * 60 * 60 * 24)) : Math.floor((today - date) / (1000 * 60 * 60 * 24));
-          habitCompletions[habit.name] = habit.completions[dayIndex] ? 1 : 0;
+          // Reverse the index to match the habit page calendar
+          const reversedIndex = (period === 'week' ? 6 : 29) - index;
+          habitCompletions[habit.name] = habit.completions[reversedIndex] ? 1 : 0;
         });
 
         return {

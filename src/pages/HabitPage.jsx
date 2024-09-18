@@ -18,7 +18,7 @@ const HabitPage = () => {
   const navigate = useNavigate();
 
   const getCalendarDates = () => {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const dateArray = [];
     const today = new Date();
 
@@ -41,7 +41,8 @@ const HabitPage = () => {
     const validatedHabits = storedHabits.map(habit => ({
       ...habit,
       completions: Array.isArray(habit.completions) ? habit.completions : Array(7).fill(false),
-      dates: habit.dates ? habit.dates.map(date => new Date(date)) : [new Date()]
+      dates: habit.dates ? habit.dates.map(date => new Date(date)) : [],
+      reminderDate: habit.reminderDate ? new Date(habit.reminderDate) : null
     }));
     
     setHabits(validatedHabits);
@@ -68,7 +69,8 @@ const HabitPage = () => {
         completions: Array(7).fill(false),
         frequency: frequency, 
         reminder: reminder,
-        dates: [selectedDate] 
+        dates: [],
+        reminderDate: selectedDate
       };
       const updatedHabits = [...habits, newHabit];
       setHabits(updatedHabits);
@@ -90,7 +92,20 @@ const HabitPage = () => {
         if (index === habitIndex) {
           const newCompletions = [...habit.completions];
           newCompletions[dateIndex] = !newCompletions[dateIndex];
-          return { ...habit, completions: newCompletions };
+          
+          const completionDate = new Date();
+          completionDate.setDate(completionDate.getDate() - dateIndex);
+          
+          let newDates = [...habit.dates];
+          if (newCompletions[dateIndex]) {
+            if (!newDates.some(d => d.toDateString() === completionDate.toDateString())) {
+              newDates.push(completionDate);
+            }
+          } else {
+            newDates = newDates.filter(d => d.toDateString() !== completionDate.toDateString());
+          }
+          
+          return { ...habit, completions: newCompletions, dates: newDates };
         }
         return habit;
       });
@@ -223,7 +238,7 @@ const HabitPage = () => {
                 <Form.Control
                   id="habitDate"
                   type="date"
-                  className={styles.inputField}
+                  className={`${styles.inputField} mx-auto`}
                   onChange={(e) => setSelectedDate(new Date(e.target.value))}
                 />
               </Form.Group>
@@ -251,7 +266,8 @@ const HabitPage = () => {
             className={styles.customCalendar}
             tileClassName={({ date, view }) => 
               view === 'month' && 
-              habits.some(habit => habit.dates.some(d => d.toDateString() === date.toDateString())) 
+              (habits.some(habit => habit.dates.some(d => d.toDateString() === date.toDateString())) ||
+               habits.some(habit => habit.reminderDate && habit.reminderDate.toDateString() === date.toDateString()))
                 ? styles.hasHabit 
                 : null
             }
