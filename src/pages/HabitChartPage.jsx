@@ -59,11 +59,11 @@ const HabitChartPage = () => {
   return (
     <div className={styles.habitChartPage}>
       <div className="container py-4 py-md-5">
-        <button className={styles.goBackButton} onClick={handleGoBack}>
-          Back
-        </button>
         <div className="row justify-content-center">
           <div className="col-12 col-md-10">
+            <button className={styles.goBackButton} onClick={handleGoBack}>
+              Back
+            </button>
             <h1 className={styles.pageTitle}>Habit Progress</h1>
             <div className={styles.date}>Today: {format(new Date(), 'MMMM d, yyyy')}</div>
             
