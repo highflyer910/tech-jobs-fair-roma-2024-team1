@@ -10,22 +10,26 @@ import { FaPlus, FaChartLine, FaCalendarAlt, FaPencilAlt, FaTrashAlt, FaCheck, F
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-import { AddNewHabits, fetchProtectedResource } from "../redux/action/habit";
+import { AddNewHabits, fetchProtectedResource, updateHabit } from "../redux/action/habit";
 
 const HabitPage = () => {
   const [dates, setDates] = useState([]);
+  const [tokenAvailable, setTokenAvailable] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [reminder, setReminder] = useState(false);
-  const [editedHabitName, setEditedHabitName] = useState("");
+  const [editedHabit, setEditedHabit] = useState({
+    name: "",
+    frequency: "",
+  });
   const [newHabitName, setNewHabitName] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState("09:00");
   const [nameError, setNameError] = useState("");
-
+  const [habitsUpdate, setHabitsUpdate] = useState(false);
   const dispatch = useDispatch();
 
-  const habits = useSelector((state) => state.habits.allHabits);
+  const { allHabits, loading, success, error } = useSelector((state) => state.habits);
   const navigate = useNavigate();
 
   const getCalendarDates = () => {
@@ -77,8 +81,16 @@ const HabitPage = () => {
     }
   });
   useEffect(() => {
-    dispatch(fetchProtectedResource());
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      setTokenAvailable(true);
+    }
   }, []);
+  useEffect(() => {
+    if (tokenAvailable) {
+      dispatch(fetchProtectedResource());
+    }
+  }, [tokenAvailable, dispatch]);
   // useEffect(() => {
   //   getCalendarDates();
   //   const storedHabits = JSON.parse(localStorage.getItem("habits")) || [];
@@ -177,12 +189,20 @@ const HabitPage = () => {
     //   localStorage.setItem("habits", JSON.stringify(updatedHabits));
   };
 
-  const handleEditClick = (habitIndex) => {
-    //   setEditingHabitIndex(habitIndex);
-    //   setEditedHabitName(habits[habitIndex].name);
+  const handleEditClick = (habit) => {
+    console.log(habit.id);
+    setHabitsUpdate(true);
+    setEditedHabit({
+      name: habit.name,
+      frequency: habit.frequency,
+    });
   };
 
-  const handleSaveEdit = (habitIndex) => {
+  const handleSaveEdit = (habitId) => {
+    console.log(habitId);
+
+    dispatch(updateHabit(habitId, editedHabit));
+    setHabitsUpdate(false);
     //   if (editedHabitName.trim() !== "") {
     //     const updatedHabits = habits.map((habit, index) => (index === habitIndex ? { ...habit, name: editedHabitName.trim() } : habit));
     //     setHabits(updatedHabits);
@@ -228,33 +248,41 @@ const HabitPage = () => {
           </div>
         </div>
 
-        {habits && habits.content && habits.content.length > 0 ? (
-          habits.content.map((habit, habitIndex) => (
+        {allHabits && allHabits.content && allHabits.content.length > 0 ? (
+          allHabits.content.map((habit, habitIndex) => (
             <div key={habit.id} className={`${styles.habitRow} d-flex align-items-center mb-3`}>
               <div className={`${styles.habitName} d-flex align-items-center`}>
-                {/* {editingHabitIndex === habitIndex ? (
-                  <input
-                    type="text"
-                    value={editedHabitName}
-                    onChange={(e) => setEditedHabitName(e.target.value)}
-                    onBlur={() => handleSaveEdit(habitIndex)}
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") handleSaveEdit(habitIndex);
-                    }}
-                    autoFocus
-                    className={styles.editInput}
-                  />
-                ) : ( */}
-                <>
-                  Name: {habit.name} - Frequency: {habit.frequency}
-                  <button className={`${styles.btnCircle} ms-2`} onClick={() => handleEditClick(habitIndex)} aria-label="Edit habit">
-                    <FaPencilAlt />
-                  </button>
-                  <button className={`${styles.btnCircle} ms-2`} onClick={() => handleDeleteHabit(habit.id)} aria-label="Delete habit">
-                    <FaTrashAlt />
-                  </button>
-                </>
-                {/* )} */}
+                {habitsUpdate ? (
+                  <>
+                    <input
+                      type="text"
+                      value={editedHabit.name}
+                      onChange={(e) => setEditedHabit({ ...editedHabit, name: e.target.value })}
+                      autoFocus
+                      className={styles.editInput}
+                    />
+                    <input
+                      type="text"
+                      value={editedHabit.frequency}
+                      onChange={(e) => setEditedHabit({ ...editedHabit, frequency: e.target.value })}
+                      autoFocus
+                      className={styles.editInput}
+                    />
+                    <Button className="btn" onClick={() => handleSaveEdit(habit.id)}>
+                      Save
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    Name: {habit.name} - Frequency: {habit.frequency}
+                    <button className={`${styles.btnCircle} ms-2`} onClick={() => handleEditClick(habit)} aria-label="Edit habit">
+                      <FaPencilAlt />
+                    </button>
+                    <button className={`${styles.btnCircle} ms-2`} onClick={() => handleDeleteHabit(habit.id)} aria-label="Delete habit">
+                      <FaTrashAlt />
+                    </button>
+                  </>
+                )}
               </div>
               <button
                 className={`${styles.completionButton} ${habit.completed ? styles.completed : styles.notCompleted}`}

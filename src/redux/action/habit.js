@@ -141,3 +141,31 @@ export const DeleteHabit = (habitsId) => async (dispatch) => {
     dispatch(updateHabitFailure(error.message));
   }
 };
+export const updateHabit = (id, habitData) => async (dispatch) => {
+  const token = localStorage.getItem("authToken");
+  dispatch(updateHabitRequest());
+
+  try {
+    const response = await fetch(`https://gross-kerrie-hackaton-team1-79e26745.koyeb.app/habits/modHabits/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(habitData),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error updating habit");
+    }
+
+    dispatch(updateHabitSuccess(data));
+    dispatch(fetchProtectedResource());
+    return data;
+  } catch (error) {
+    dispatch(updateHabitFailure(error.message));
+    throw error;
+  }
+};
