@@ -111,26 +111,6 @@ const HabitPage = () => {
     getCalendarDates();
     const habitDates = allHabits.content.map((habit) => new Date(habit.createdAt));
     const reminderDates = notifications.map((notification) => new Date(notification.scheduledAt));
-    //   const storedHabits = JSON.parse(localStorage.getItem("habits")) || [];
-
-    //   const validatedHabits = storedHabits.map((habit) => ({
-    //     ...habit,
-    //     completions: Array.isArray(habit.completions) ? habit.completions : Array(7).fill(false),
-    //     dates: habit.dates ? habit.dates.map((date) => new Date(date)) : [],
-    //     reminderDate: habit.reminderDate ? new Date(habit.reminderDate) : null,
-    //     reminderTime: habit.reminderTime || "09:00",
-    //   }));
-
-    //   validatedHabits.forEach((habit) => {
-    //     if (habit.reminder) {
-    //       scheduleNotification(habit);
-    //     }
-    //   });
-
-    //   const storedDate = localStorage.getItem("selectedDate");
-    //   if (storedDate) {
-    //     setSelectedDate(new Date(storedDate));
-    //   }
   }, []);
 
   const handleModalToggle = () => setShowModal(!showModal);
@@ -159,7 +139,6 @@ const HabitPage = () => {
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
-    //  localStorage.setItem("selectedDate", date.toISOString());
   };
 
   const toggleHabitCompletion = (id, currentStatus) => {
