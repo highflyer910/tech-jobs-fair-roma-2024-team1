@@ -41,6 +41,7 @@ const HabitPage = () => {
   const [nameError, setNameError] = useState("");
   const [habitsUpdate, setHabitsUpdate] = useState(false);
   const [selectedHabitId, setSelectedHabitId] = useState(null);
+
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(fetchNotifications());
@@ -107,11 +108,6 @@ const HabitPage = () => {
       dispatch(fetchProtectedResource());
     }
   }, [tokenAvailable, dispatch]);
-  useEffect(() => {
-    getCalendarDates();
-    const habitDates = allHabits.content.map((habit) => new Date(habit.createdAt));
-    const reminderDates = notifications.map((notification) => new Date(notification.scheduledAt));
-  }, []);
 
   const handleModalToggle = () => setShowModal(!showModal);
   const handleCalendarToggle = () => setShowCalendar(!showCalendar);
