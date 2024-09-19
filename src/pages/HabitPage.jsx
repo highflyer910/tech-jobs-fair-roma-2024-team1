@@ -156,39 +156,14 @@ const HabitPage = () => {
 
   const toggleHabitCompletion = (id, currentStatus) => {
     dispatch(updateHabitCompletion(id, !currentStatus));
-    //   setHabits((prevHabits) => {
-    //     const updatedHabits = prevHabits.map((habit, index) => {
-    //       if (index === habitIndex) {
-    //         const newCompletions = [...habit.completions];
-    //         newCompletions[dateIndex] = !newCompletions[dateIndex];
-    //         const completionDate = new Date();
-    //         completionDate.setDate(completionDate.getDate() - dateIndex);
-    //         let newDates = [...habit.dates];
-    //         if (newCompletions[dateIndex]) {
-    //           if (!newDates.some((d) => d.toDateString() === completionDate.toDateString())) {
-    //             newDates.push(completionDate);
-    //           }
-    //         } else {
-    //           newDates = newDates.filter((d) => d.toDateString() !== completionDate.toDateString());
-    //         }
-    //         return { ...habit, completions: newCompletions, dates: newDates };
-    //       }
-    //       return habit;
-    //     });
-    //     localStorage.setItem("habits", JSON.stringify(updatedHabits));
-    //     return updatedHabits;
-    //   });
   };
 
   const handleChartNavigation = () => {
-    //   navigate("/habit-chart", { state: { habits: habits } });
+    navigate("/habit-chart", { state: { habits: allHabits } });
   };
 
   const handleDeleteHabit = (habitId) => {
     dispatch(DeleteHabit(habitId));
-    //   const updatedHabits = habits.filter((_, index) => index !== habitIndex);
-    //   setHabits(updatedHabits);
-    //   localStorage.setItem("habits", JSON.stringify(updatedHabits));
   };
 
   const handleEditClick = (habit) => {
@@ -243,7 +218,7 @@ const HabitPage = () => {
         </div>
 
         {allHabits && allHabits.content && allHabits.content.length > 0 ? (
-          allHabits.content.map((habit, habitIndex) => (
+          allHabits.content.map((habit) => (
             <div key={habit.id} className={`${styles.habitRow} d-flex align-items-center mb-3`}>
               <div className={`${styles.habitName} d-flex align-items-center`}>
                 {habitsUpdate ? (
@@ -297,10 +272,8 @@ const HabitPage = () => {
           </Modal.Header>
           <Modal.Body className={`${styles.modalBody}`}>
             <Form>
-              <Form.Group controlId="habitName">
-                <Form.Label htmlFor="habitName" className="text-white">
-                  Name
-                </Form.Label>
+              <Form.Group>
+                <Form.Label className="text-white">Name</Form.Label>
                 <Form.Control
                   id="habitName"
                   type="text"
@@ -318,10 +291,8 @@ const HabitPage = () => {
                 {nameError && <div className="invalid-feedback">{nameError}</div>}
               </Form.Group>
 
-              <Form.Group controlId="habitFrequency" className="mt-3">
-                <Form.Label htmlFor="habitFrequency" className="text-white">
-                  Frequency
-                </Form.Label>
+              <Form.Group className="mt-3">
+                <Form.Label className="text-white">Frequency</Form.Label>
                 <Form.Select id="habitFrequency" className={styles.inputField} required>
                   <option value="none">None</option>
                   <option value="everyday">Everyday</option>
@@ -330,19 +301,15 @@ const HabitPage = () => {
                 </Form.Select>
               </Form.Group>
 
-              <Form.Group controlId="habitReminder" className="mt-3 d-flex align-items-center justify-content-between">
-                <Form.Label htmlFor="habitReminder" className="text-white mb-0">
-                  Reminder
-                </Form.Label>
+              <Form.Group className="mt-3 d-flex align-items-center justify-content-between">
+                <Form.Label className="text-white mb-0">Reminder</Form.Label>
                 <Form.Check type="switch" id="habitReminder" className={styles.switch} checked={reminder} onChange={() => setReminder(!reminder)} />
               </Form.Group>
 
               {reminder && (
                 <>
-                  <Form.Group controlId="habitDate" className="mt-3">
-                    <Form.Label htmlFor="habitDate" className="text-white">
-                      Select Date
-                    </Form.Label>
+                  <Form.Group className="mt-3">
+                    <Form.Label className="text-white">Select Date</Form.Label>
                     <Form.Control
                       id="habitDate"
                       type="date"
@@ -351,10 +318,8 @@ const HabitPage = () => {
                     />
                   </Form.Group>
 
-                  <Form.Group controlId="habitTime" className="mt-3">
-                    <Form.Label htmlFor="habitTime" className="text-white">
-                      Select Time
-                    </Form.Label>
+                  <Form.Group className="mt-3">
+                    <Form.Label className="text-white">Select Time</Form.Label>
                     <TimePicker
                       onChange={setSelectedTime}
                       value={selectedTime}
