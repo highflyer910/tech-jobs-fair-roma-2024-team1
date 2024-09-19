@@ -10,7 +10,9 @@ export const UPDATE_HABIT_FAILURE = "UPDATE_HABIT_FAILURE";
 export const CREATE_NOTIFICATION_REQUEST = "CREATE_NOTIFICATION_REQUEST";
 export const CREATE_NOTIFICATION_SUCCESS = "CREATE_NOTIFICATION_SUCCESS";
 export const CREATE_NOTIFICATION_FAILURE = "CREATE_NOTIFICATION_FAILURE";
-
+export const FETCH_NOTIFICATIONS_REQUEST = "FETCH_NOTIFICATIONS_REQUEST";
+export const FETCH_NOTIFICATIONS_SUCCESS = "FETCH_NOTIFICATIONS_SUCCESS";
+export const FETCH_NOTIFICATIONS_FAILURE = "FETCH_NOTIFICATIONS_FAILURE";
 const updateHabitRequest = () => ({
   type: UPDATE_HABIT_REQUEST,
 });
@@ -194,5 +196,22 @@ export const createNotification = (notificationData) => async (dispatch) => {
     dispatch({ type: CREATE_NOTIFICATION_SUCCESS, payload: result });
   } catch (error) {
     dispatch({ type: CREATE_NOTIFICATION_FAILURE, payload: error.message });
+  }
+};
+export const fetchNotifications = () => async (dispatch) => {
+  dispatch({ type: FETCH_NOTIFICATIONS_REQUEST });
+  try {
+    const token = localStorage.getItem("authToken");
+    const response = await fetch("https://gross-kerrie-hackaton-team1-79e26745.koyeb.app/notifications?page=0&size=10&sortBy=id", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    dispatch({ type: FETCH_NOTIFICATIONS_SUCCESS, payload: data.content });
+  } catch (error) {
+    dispatch({ type: FETCH_NOTIFICATIONS_FAILURE, payload: error.message });
   }
 };

@@ -5,6 +5,9 @@ import {
   CREATE_NOTIFICATION_FAILURE,
   CREATE_NOTIFICATION_REQUEST,
   CREATE_NOTIFICATION_SUCCESS,
+  FETCH_NOTIFICATIONS_FAILURE,
+  FETCH_NOTIFICATIONS_REQUEST,
+  FETCH_NOTIFICATIONS_SUCCESS,
   GET_HABITS,
   GET_HABITS_FAILURE,
   RESET_HABITS_STATE,
@@ -20,7 +23,7 @@ const initialState = {
   content: null,
   errorMsg: null,
   allHabits: null,
-  completation: [],
+
   notifications: [],
 };
 const HabitsReducer = (state = initialState, action) => {
@@ -66,6 +69,12 @@ const HabitsReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
+    case FETCH_NOTIFICATIONS_REQUEST:
+      return { ...state, loading: true, error: null };
+    case FETCH_NOTIFICATIONS_SUCCESS:
+      return { ...state, loading: false, notifications: action.payload };
+    case FETCH_NOTIFICATIONS_FAILURE:
+      return { ...state, loading: false, error: action.payload };
     default:
       return state;
   }

@@ -10,7 +10,15 @@ import { FaPlus, FaChartLine, FaCalendarAlt, FaPencilAlt, FaTrashAlt, FaCheck, F
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-import { AddNewHabits, createNotification, DeleteHabit, fetchProtectedResource, updateHabit, updateHabitCompletion } from "../redux/action/habit";
+import {
+  AddNewHabits,
+  createNotification,
+  DeleteHabit,
+  fetchNotifications,
+  fetchProtectedResource,
+  updateHabit,
+  updateHabitCompletion,
+} from "../redux/action/habit";
 import { useUser } from "@clerk/clerk-react";
 import { IoNotificationsSharp } from "react-icons/io5";
 
@@ -34,8 +42,10 @@ const HabitPage = () => {
   const [habitsUpdate, setHabitsUpdate] = useState(false);
   const [selectedHabitId, setSelectedHabitId] = useState(null);
   const dispatch = useDispatch();
-
-  const { allHabits, loading, success, error } = useSelector((state) => state.habits);
+  useEffect(() => {
+    dispatch(fetchNotifications());
+  }, [dispatch]);
+  const { allHabits, loading, success, error, notifications } = useSelector((state) => state.habits);
   const navigate = useNavigate();
 
   const getCalendarDates = () => {
@@ -99,6 +109,8 @@ const HabitPage = () => {
   }, [tokenAvailable, dispatch]);
   useEffect(() => {
     getCalendarDates();
+    const habitDates = allHabits.content.map((habit) => new Date(habit.createdAt));
+    const reminderDates = notifications.map((notification) => new Date(notification.scheduledAt));
     //   const storedHabits = JSON.parse(localStorage.getItem("habits")) || [];
 
     //   const validatedHabits = storedHabits.map((habit) => ({
@@ -146,7 +158,7 @@ const HabitPage = () => {
   };
 
   const handleDateChange = (date) => {
-    //  setSelectedDate(date);
+    setSelectedDate(date);
     //  localStorage.setItem("selectedDate", date.toISOString());
   };
 
@@ -260,7 +272,7 @@ const HabitPage = () => {
                       autoFocus
                       className={styles.editInput}
                     />
-                    <Button className="btn" onClick={() => handleSaveEdit(habit.id)}>
+                    <Button variant="btn" onClick={() => handleSaveEdit(habit.id)} className={`${styles.saveButton} mt-4 w-100`}>
                       Save
                     </Button>
                   </>
@@ -389,18 +401,35 @@ const HabitPage = () => {
             <Modal.Title>Habits Calendar</Modal.Title>
           </Modal.Header>
           <Modal.Body className={styles.calendarModalBody}>
-            <Calendar
-              onChange={handleDateChange}
-              value={selectedDate}
-              className={styles.customCalendar}
-              tileClassName={({ date, view }) =>
-                view === "month" &&
-                (habits.some((habit) => habit.dates.some((d) => d.toDateString() === date.toDateString())) ||
-                  habits.some((habit) => habit.reminderDate && habit.reminderDate.toDateString() === date.toDateString()))
-                  ? styles.hasHabit
-                  : null
-              }
-            />
+            {allHabits && allHabits.content && allHabits.content.length > 0 && (
+              <Calendar
+                onChange={handleDateChange}
+                value={selectedDate}
+                className={styles.customCalendar}
+                tileClassName={({ date, view }) => {
+                  // Converti la data del calendario in formato Date
+                  const calendarDate = new Date(date);
+
+                  // Controlla se ci sono abitudini per la data
+                  const hasHabit =
+                    allHabits.content &&
+                    Array.isArray(allHabits.content) &&
+                    allHabits.content.some((habit) => new Date(habit.createdAt).toDateString() === calendarDate.toDateString());
+                  // Controlla se ci sono notifiche per la data
+                  const hasReminder =
+                    Array.isArray(notifications) &&
+                    notifications.some((notification) => new Date(notification.scheduledAt).toDateString() === calendarDate.toDateString());
+
+                  // Determina le classi di stile in base alla presenza di abitudini e notifiche
+                  const classNames = [];
+                  if (hasHabit) classNames.push(styles.hasHabit);
+                  if (hasReminder) classNames.push(styles.hasReminder);
+
+                  // Restituisce la classe combinata o nulla
+                  return classNames.join(" ") || null;
+                }}
+              />
+            )}
           </Modal.Body>
         </Modal>
       </div>
