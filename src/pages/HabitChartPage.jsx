@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { format, subDays, eachDayOfInterval } from "date-fns";
+import { format, subDays, eachDayOfInterval, isSameDay } from "date-fns";
 import styles from "./HabitChartPage.module.css";
 
 const HabitChartPage = () => {
@@ -16,26 +16,33 @@ const HabitChartPage = () => {
   };
 
   useEffect(() => {
-    if (habits && habits.content.length > 0 > 0) {
+    if (habits && habits.content.length > 0) {
       const today = new Date();
       const startDate = period === "week" ? subDays(today, 6) : subDays(today, 29);
 
       const dates = eachDayOfInterval({ start: startDate, end: today });
 
-      const data = dates.map((date, index) => {
-        const dateString = format(date, "yyyy-MM-dd");
-        const habitCompletions = {};
+      const totalHabits = habits.content.length;
 
+      const data = dates.map((date) => {
+        const dateString = format(date, "yyyy-MM-dd");
+        let dailyCompleted = 0;
+
+        // Calcola il numero di abitudini completate per ogni giorno
         habits.content.forEach((habit) => {
-          // Reverse the index to match the habit page calendar
-          const reversedIndex = (period === "week" ? 6 : 29) - index;
-          habitCompletions[habit.name] = habit.completed ? 1 : 0;
+          const habitUpdatedDate = new Date(habit.updatedAt);
+          const isCompleted = habit.completed && isSameDay(habitUpdatedDate, date);
+          if (isCompleted) {
+            dailyCompleted += 1;
+          }
         });
-        const totalCompleted = habits.content.reduce((count, habit) => count + (habit.completed ? 1 : 0), 0);
+
+        // Calcola la percentuale di abitudini completate
+        const completionRate = totalHabits > 0 ? (dailyCompleted / totalHabits) * 100 : 0;
 
         return {
           date: dateString,
-          ...habitCompletions,
+          completionRate, // Percentuale di abitudini completate
         };
       });
 
@@ -43,7 +50,7 @@ const HabitChartPage = () => {
     }
   }, [habits, period]);
 
-  if (!habits || habits.length === 0) {
+  if (!habits || habits.content.length === 0) {
     return (
       <div className={styles.habitChartPage}>
         <button className={styles.goBackButton} onClick={handleGoBack}>
@@ -53,8 +60,6 @@ const HabitChartPage = () => {
       </div>
     );
   }
-
-  const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#0088fe"];
 
   return (
     <div className={styles.habitChartPage}>
@@ -91,22 +96,26 @@ const HabitChartPage = () => {
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                   <XAxis dataKey="date" tickFormatter={(tick) => format(new Date(tick), "MMM d")} stroke="#ffffff" padding={{ left: 2, right: 30 }} />
-                  <YAxis ticks={[0, 1]} domain={[0, 1]} stroke="#ffffff" />
-                  <Tooltip contentStyle={{ backgroundColor: "rgba(255,255,255,0.8)", color: "#333" }} />
+                  <YAxis allowDecimals={false} domain={[0, 100]} stroke="#ffffff" tickFormatter={(value) => `${value}%`} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "rgba(255,255,255,0.8)",
+                      color: "#333",
+                    }}
+                    formatter={(value) => `${value.toFixed(2)}%`}
+                  />
                   <Legend />
-                  {habits.content.map((habit, index) => (
-                    <Line
-                      key={habit.name}
-                      type="monotone"
-                      dataKey={habit.name}
-                      stroke={colors[index % colors.length]}
-                      strokeWidth={2}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6 }}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  ))}
+                  <Line
+                    type="monotone"
+                    dataKey="completionRate"
+                    name="Completion Rate"
+                    stroke="#82ca9d"
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
