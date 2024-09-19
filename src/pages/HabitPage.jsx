@@ -10,14 +10,19 @@ import { FaPlus, FaChartLine, FaCalendarAlt, FaPencilAlt, FaTrashAlt, FaCheck, F
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-import { AddNewHabits, DeleteHabit, fetchProtectedResource, updateHabit, updateHabitCompletion } from "../redux/action/habit";
+import { AddNewHabits, createNotification, DeleteHabit, fetchProtectedResource, updateHabit, updateHabitCompletion } from "../redux/action/habit";
+import { useUser } from "@clerk/clerk-react";
+import { IoNotificationsSharp } from "react-icons/io5";
 
 const HabitPage = () => {
+  const { isSignedIn, user } = useUser();
   const [dates, setDates] = useState([]);
   const [tokenAvailable, setTokenAvailable] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [reminder, setReminder] = useState(false);
+  const [notificationName, setNotificationName] = useState("");
+
   const [editedHabit, setEditedHabit] = useState({
     name: "",
     frequency: "",
@@ -27,6 +32,7 @@ const HabitPage = () => {
   const [selectedTime, setSelectedTime] = useState("09:00");
   const [nameError, setNameError] = useState("");
   const [habitsUpdate, setHabitsUpdate] = useState(false);
+  const [selectedHabitId, setSelectedHabitId] = useState(null);
   const dispatch = useDispatch();
 
   const { allHabits, loading, success, error } = useSelector((state) => state.habits);
@@ -91,62 +97,52 @@ const HabitPage = () => {
       dispatch(fetchProtectedResource());
     }
   }, [tokenAvailable, dispatch]);
-  // useEffect(() => {
-  //   getCalendarDates();
-  //   const storedHabits = JSON.parse(localStorage.getItem("habits")) || [];
+  useEffect(() => {
+    getCalendarDates();
+    //   const storedHabits = JSON.parse(localStorage.getItem("habits")) || [];
 
-  //   const validatedHabits = storedHabits.map((habit) => ({
-  //     ...habit,
-  //     completions: Array.isArray(habit.completions) ? habit.completions : Array(7).fill(false),
-  //     dates: habit.dates ? habit.dates.map((date) => new Date(date)) : [],
-  //     reminderDate: habit.reminderDate ? new Date(habit.reminderDate) : null,
-  //     reminderTime: habit.reminderTime || "09:00",
-  //   }));
+    //   const validatedHabits = storedHabits.map((habit) => ({
+    //     ...habit,
+    //     completions: Array.isArray(habit.completions) ? habit.completions : Array(7).fill(false),
+    //     dates: habit.dates ? habit.dates.map((date) => new Date(date)) : [],
+    //     reminderDate: habit.reminderDate ? new Date(habit.reminderDate) : null,
+    //     reminderTime: habit.reminderTime || "09:00",
+    //   }));
 
-  //   validatedHabits.forEach((habit) => {
-  //     if (habit.reminder) {
-  //       scheduleNotification(habit);
-  //     }
-  //   });
+    //   validatedHabits.forEach((habit) => {
+    //     if (habit.reminder) {
+    //       scheduleNotification(habit);
+    //     }
+    //   });
 
-  //   const storedDate = localStorage.getItem("selectedDate");
-  //   if (storedDate) {
-  //     setSelectedDate(new Date(storedDate));
-  //   }
-  // }, [scheduleNotification]);
+    //   const storedDate = localStorage.getItem("selectedDate");
+    //   if (storedDate) {
+    //     setSelectedDate(new Date(storedDate));
+    //   }
+  }, []);
 
   const handleModalToggle = () => setShowModal(!showModal);
   const handleCalendarToggle = () => setShowCalendar(!showCalendar);
-
-  const handleSaveHabit = () => {
+  const handleReaminderToggle = () => setReminder(!reminder);
+  const handleSaveHabit = (e) => {
+    e.preventDefault();
     if (newHabitName.trim() === "") {
       setNameError("Please enter a habit name");
       return;
     }
     setNameError("");
-    if (newHabitName.trim() !== "") {
-      const frequency = document.getElementById("habitFrequency").value;
-      const newHabit = {
-        name: newHabitName,
 
-        frequency: frequency,
-        reminder: reminder,
+    const frequency = document.getElementById("habitFrequency").value;
+    const newHabit = {
+      name: newHabitName,
+      frequency: frequency,
+      reminder: reminder,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      completed: false,
+    };
 
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        completed: false,
-      };
-      dispatch(AddNewHabits(newHabit));
-
-      setNewHabitName("");
-      setReminder(false);
-      setSelectedTime("09:00");
-      handleModalToggle();
-
-      if (reminder) {
-        scheduleNotification(newHabit);
-      }
-    }
+    dispatch(AddNewHabits(newHabit));
   };
 
   const handleDateChange = (date) => {
@@ -178,6 +174,33 @@ const HabitPage = () => {
   const handleSaveEdit = (habitId) => {
     dispatch(updateHabit(habitId, editedHabit));
     setHabitsUpdate(false);
+  };
+
+  const handleSaveNotification = (e) => {
+    e.preventDefault();
+    const selectedDateTime = new Date(selectedDate);
+    const [hours, minutes] = selectedTime.split(":");
+    selectedDateTime.setHours(hours);
+    selectedDateTime.setMinutes(minutes);
+
+    const message = `Reminder: It's time for your habit! ${notificationName}`;
+
+    // Crea la notifica
+    const notificationData = {
+      user: user.id,
+      habits: selectedHabitId,
+      message: message,
+      scheduledAt: selectedDateTime.toISOString(),
+      sent_at: null,
+    };
+
+    // Invia la notifica
+    dispatch(createNotification(notificationData));
+
+    // Resetta il modulo notifica
+    setSelectedDate(null);
+    setSelectedTime("09:00");
+    setReminder(false);
   };
 
   return (
@@ -219,8 +242,8 @@ const HabitPage = () => {
 
         {allHabits && allHabits.content && allHabits.content.length > 0 ? (
           allHabits.content.map((habit) => (
-            <div key={habit.id} className={`${styles.habitRow} d-flex align-items-center mb-3`}>
-              <div className={`${styles.habitName} d-flex align-items-center`}>
+            <div key={habit.id} className={`${styles.habitRow} d-flex align-items-center mb-3 `}>
+              <div className={`${styles.habitName} d-flex align-items-center justify-content-between`}>
                 {habitsUpdate ? (
                   <>
                     <input
@@ -244,21 +267,33 @@ const HabitPage = () => {
                 ) : (
                   <>
                     Name: {habit.name} - Frequency: {habit.frequency}
-                    <button className={`${styles.btnCircle} ms-2`} onClick={() => handleEditClick(habit)} aria-label="Edit habit">
-                      <FaPencilAlt />
-                    </button>
-                    <button className={`${styles.btnCircle} ms-2`} onClick={() => handleDeleteHabit(habit.id)} aria-label="Delete habit">
-                      <FaTrashAlt />
-                    </button>
+                    <div className="d-flex align-items-center">
+                      <button className={`${styles.btnCircle} ms-2`} onClick={() => handleEditClick(habit)} aria-label="Edit habit">
+                        <FaPencilAlt />
+                      </button>
+                      <button className={`${styles.btnCircle} ms-2`} onClick={() => handleDeleteHabit(habit.id)} aria-label="Delete habit">
+                        <FaTrashAlt />
+                      </button>
+                      <button
+                        className={`${styles.btnCircle} ms-2`}
+                        onClick={() => {
+                          setReminder(!reminder);
+                          setSelectedHabitId(habit.id);
+                          setNotificationName(habit.name);
+                        }}
+                      >
+                        <IoNotificationsSharp />
+                      </button>
+                      <button
+                        className={`${styles.btnCircle} mx-3 ${habit.completed ? styles.completed : styles.notCompleted}`}
+                        onClick={() => toggleHabitCompletion(habit.id, habit.completed)}
+                      >
+                        {habit.completed ? <FaCheck /> : <FaTimes />}
+                      </button>
+                    </div>
                   </>
                 )}
               </div>
-              <button
-                className={`${styles.completionButton} ${habit.completed ? styles.completed : styles.notCompleted}`}
-                onClick={() => toggleHabitCompletion(habit.id, habit.completed)}
-              >
-                {habit.completed ? <FaCheck /> : <FaTimes />}
-              </button>
             </div>
           ))
         ) : (
@@ -266,6 +301,47 @@ const HabitPage = () => {
             <div className={`${styles.bigCircle} d-flex align-items-center justify-content-center text-center mt-4 p-3`}>You have no active habits</div>
           </div>
         )}
+
+        <>
+          <Modal show={reminder} onHide={handleReaminderToggle} centered>
+            <Modal.Header closeButton className={`${styles.modalHeader}`}>
+              <Modal.Title className={`${styles.headerModal} text-white`}>Add Notifications</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className={`${styles.modalBody}`}>
+              <Form>
+                <Form.Group className="mt-3">
+                  <Form.Label className="text-white">Select Date</Form.Label>
+                  <Form.Control
+                    id="habitDate"
+                    type="date"
+                    className={`${styles.inputField} mx-auto`}
+                    onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                  />
+                </Form.Group>
+
+                <Form.Group className="mt-3">
+                  <Form.Label className="text-white">Select Time</Form.Label>
+                  <TimePicker
+                    onChange={setSelectedTime}
+                    value={selectedTime}
+                    className={`${styles.inputField} mx-2 border-white bg-transparent text-white`}
+                    disableClock={true}
+                    clearIcon={null}
+                    clockIcon={null}
+                    format="h:mm a"
+                    portalClassName="time-picker-portal"
+                  />
+                </Form.Group>
+              </Form>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="btn" onClick={handleSaveNotification} className={`${styles.saveButton} mt-4 w-100`}>
+                Save Notification
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        </>
+
         <Modal show={showModal} onHide={handleModalToggle} centered>
           <Modal.Header closeButton className={`${styles.modalHeader}`}>
             <Modal.Title className={`${styles.headerModal} text-white`}>Create Habit</Modal.Title>
@@ -300,39 +376,6 @@ const HabitPage = () => {
                   <option value="onceaweek">Once a Week</option>
                 </Form.Select>
               </Form.Group>
-
-              <Form.Group className="mt-3 d-flex align-items-center justify-content-between">
-                <Form.Label className="text-white mb-0">Reminder</Form.Label>
-                <Form.Check type="switch" id="habitReminder" className={styles.switch} checked={reminder} onChange={() => setReminder(!reminder)} />
-              </Form.Group>
-
-              {reminder && (
-                <>
-                  <Form.Group className="mt-3">
-                    <Form.Label className="text-white">Select Date</Form.Label>
-                    <Form.Control
-                      id="habitDate"
-                      type="date"
-                      className={`${styles.inputField} mx-auto`}
-                      onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                    />
-                  </Form.Group>
-
-                  <Form.Group className="mt-3">
-                    <Form.Label className="text-white">Select Time</Form.Label>
-                    <TimePicker
-                      onChange={setSelectedTime}
-                      value={selectedTime}
-                      className={`${styles.inputField} mx-2 border-white bg-transparent text-white`}
-                      disableClock={true}
-                      clearIcon={null}
-                      clockIcon={null}
-                      format="h:mm a"
-                      portalClassName="time-picker-portal"
-                    />
-                  </Form.Group>
-                </>
-              )}
 
               <Button variant="outline-light" onClick={handleSaveHabit} className={`${styles.saveButton} mt-4 w-100`}>
                 Save Habit

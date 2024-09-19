@@ -1,12 +1,12 @@
 .habitPage {
-  background-color: #5251B5;
+  background-color: #5251b5;
   color: #fff;
-  font-family: 'Rubik', sans-serif;
+  font-family: "Rubik", sans-serif;
 }
 
 .pageTitle {
   font-weight: 700;
-  color: #FFF;
+  color: #fff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -14,19 +14,19 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background-color: #8E97FD;
+  background-color: #8e97fd;
   color: #fff;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: .8rem;
+  font-size: 0.8rem;
   transition: all 0.3s ease;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
 
 .btnCircle:hover {
-  background-color: #7A84E8;
+  background-color: #7a84e8;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.22);
 }
@@ -54,7 +54,7 @@
 }
 
 .today {
-  background-color: #8E97FD;
+  background-color: #8e97fd;
 }
 
 .bigCircle {
@@ -62,21 +62,21 @@
   height: 300px;
   margin-top: 100px;
   border-radius: 50%;
-  background-color: #8E97FD;
+  background-color: #8e97fd;
   font-size: 1.25rem;
   font-weight: 600;
 }
 
 .modalHeader {
-  background-color: #7A84E8;
+  background-color: #7a84e8;
 }
 
 .modalBody {
-  background-color: #5251B5;
+  background-color: #5251b5;
   color: #fff;
 }
 
-h2{
+h2 {
   font-size: 1.1rem;
 }
 
@@ -116,7 +116,7 @@ h2{
 }
 
 .completed {
-  background-color: #8E97FD;
+  background-color: #8e97fd;
 }
 
 .notCompleted {
@@ -143,7 +143,7 @@ h2{
   .btnCircle {
     width: 25px;
     height: 25px;
-    font-size: .5rem;
+    font-size: 0.5rem;
   }
 
   .bigCircle {
@@ -196,7 +196,8 @@ h2{
   transition: background-color 0.2s ease;
 }
 
-.customSelect:hover, .customSelect:focus {
+.customSelect:hover,
+.customSelect:focus {
   background-color: #7a84e8;
 }
 
@@ -256,18 +257,17 @@ h2{
 .saveButton:hover {
   background-color: #7184e4 !important;
   color: #fff !important;
-
 }
 
 .calendarModal {
   background-color: rgba(0, 0, 0, 0.5);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
   border-radius: 15px;
-  color: #fff ;
+  color: #fff;
 }
 
 .calendarModalHeader {
-  background-color: #5251B5;
+  background-color: #5251b5;
   color: #fff;
   border-bottom: none;
 }
@@ -327,7 +327,7 @@ h2{
 }
 
 .editInput {
-  background: #5251B5;
+  background: #5251b5;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 4px;
   color: #fff;
@@ -335,5 +335,3 @@ h2{
   font-size: 1rem;
   width: 50%;
 }
-
-

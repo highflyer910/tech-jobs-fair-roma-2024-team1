@@ -7,6 +7,9 @@ export const GET_HABITS_FAILURE = "GET_HABITS_FAILURE";
 export const UPDATE_HABIT_REQUEST = "UPDATE_HABIT_REQUEST";
 export const UPDATE_HABIT_SUCCESS = "UPDATE_HABIT_SUCCESS";
 export const UPDATE_HABIT_FAILURE = "UPDATE_HABIT_FAILURE";
+export const CREATE_NOTIFICATION_REQUEST = "CREATE_NOTIFICATION_REQUEST";
+export const CREATE_NOTIFICATION_SUCCESS = "CREATE_NOTIFICATION_SUCCESS";
+export const CREATE_NOTIFICATION_FAILURE = "CREATE_NOTIFICATION_FAILURE";
 
 const updateHabitRequest = () => ({
   type: UPDATE_HABIT_REQUEST,
@@ -63,7 +66,7 @@ export const AddNewHabits = (habitsData) => async (dispatch) => {
       throw new Error(data.error || "Errore durante la registrazione");
     }
 
-    dispatch(addNewHabitsSuccess(data.message));
+    dispatch(addNewHabitsSuccess(data));
     dispatch(fetchProtectedResource());
   } catch (error) {
     dispatch(addNewHabitsFailure(error.message));
@@ -167,5 +170,29 @@ export const updateHabit = (id, habitData) => async (dispatch) => {
   } catch (error) {
     dispatch(updateHabitFailure(error.message));
     throw error;
+  }
+};
+export const createNotification = (notificationData) => async (dispatch) => {
+  dispatch({ type: CREATE_NOTIFICATION_REQUEST });
+
+  try {
+    const token = localStorage.getItem("authToken");
+    const response = await fetch("https://gross-kerrie-hackaton-team1-79e26745.koyeb.app/notifications", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(notificationData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create notification");
+    }
+
+    const result = await response.json();
+    dispatch({ type: CREATE_NOTIFICATION_SUCCESS, payload: result });
+  } catch (error) {
+    dispatch({ type: CREATE_NOTIFICATION_FAILURE, payload: error.message });
   }
 };

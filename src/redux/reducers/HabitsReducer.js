@@ -2,6 +2,9 @@ import {
   ADD_NEW_HABITS_FAILURE,
   ADD_NEW_HABITS_REQUEST,
   ADD_NEW_HABITS_SUCCESS,
+  CREATE_NOTIFICATION_FAILURE,
+  CREATE_NOTIFICATION_REQUEST,
+  CREATE_NOTIFICATION_SUCCESS,
   GET_HABITS,
   GET_HABITS_FAILURE,
   RESET_HABITS_STATE,
@@ -18,6 +21,7 @@ const initialState = {
   errorMsg: null,
   allHabits: null,
   completation: [],
+  notifications: [],
 };
 const HabitsReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -44,7 +48,24 @@ const HabitsReducer = (state = initialState, action) => {
       };
     case UPDATE_HABIT_FAILURE:
       return { ...state, error: true, errorMsg: action.payload, success: false, loading: false };
-
+    case CREATE_NOTIFICATION_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case CREATE_NOTIFICATION_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        notifications: [...state.notifications, action.payload],
+      };
+    case CREATE_NOTIFICATION_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
     default:
       return state;
   }
