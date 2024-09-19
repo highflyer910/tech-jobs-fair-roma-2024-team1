@@ -1,26 +1,26 @@
 .habitPage {
   background-color: #5251B5;
-  color: white;
+  color: #fff;
   font-family: 'Rubik', sans-serif;
 }
 
 .pageTitle {
   font-weight: 700;
-  color: #FFFFFF;
+  color: #FFF;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btnCircle {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background-color: #8E97FD;
-  color: white;
+  color: #fff;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: .8rem;
   transition: all 0.3s ease;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
@@ -73,7 +73,7 @@
 
 .modalBody {
   background-color: #5251B5;
-  color: white;
+  color: #fff;
 }
 
 h2{
@@ -81,7 +81,7 @@ h2{
 }
 
 .sectionTitle {
-  color: white;
+  color: #fff;
   font-size: 1.5rem;
   margin-bottom: 1rem;
 }
@@ -92,7 +92,7 @@ h2{
 }
 
 .habitName {
-  color: white;
+  color: #fff;
   font-size: 18px;
 }
 
@@ -110,9 +110,8 @@ h2{
   align-items: center;
   justify-content: center;
   background-color: transparent;
-  border: 1px solid white;
-  color: white;
-  font-weight: bold;
+  border: 1px solid #fff;
+  color: #fff;
   transition: all 0.3s ease;
 }
 
@@ -125,7 +124,7 @@ h2{
 }
 
 .headerModal {
-  color: #ffffff !important;
+  color: #fff !important;
   font-size: 24px !important;
   line-height: 28.44px !important;
 }
@@ -142,9 +141,9 @@ h2{
   }
 
   .btnCircle {
-    width: 36px;
-    height: 36px;
-    font-size: 1rem;
+    width: 25px;
+    height: 25px;
+    font-size: .5rem;
   }
 
   .bigCircle {
@@ -182,14 +181,14 @@ h2{
 }
 
 .dropdownLabel {
-  color: #ffffff;
+  color: #fff;
   font-size: 0.95rem;
   margin-left: 0.5rem;
 }
 
 .customSelect {
   background-color: #8e97fd;
-  color: white;
+  color: #fff;
   border: none;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -227,7 +226,7 @@ h2{
 .deleteButton {
   background-color: transparent;
   border: none;
-  color: #ff6b6b;
+  color: #fff;
   font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
@@ -237,7 +236,7 @@ h2{
 }
 
 .deleteButton:hover {
-  color: #ff4757;
+  color: #fbfbfb;
 }
 
 .inputField {
@@ -269,7 +268,7 @@ h2{
 
 .calendarModalHeader {
   background-color: #5251B5;
-  color: white;
+  color: #fff;
   border-bottom: none;
 }
 
@@ -283,7 +282,7 @@ h2{
   max-width: 350px;
   margin: 0 auto;
   background-color: #42418e;
-  color: white;
+  color: #fff;
   border: none;
   border-radius: 8px;
 }
@@ -293,29 +292,48 @@ h2{
 }
 
 .time-picker-portal .react-time-picker__wrapper {
-  border-color: white;
+  border-color: #fff;
 }
 
 .time-picker-portal .react-time-picker__inputGroup {
-  color: white;
+  color: #fff;
 }
 
 .time-picker-portal .react-time-picker__button {
-  stroke: white;
+  stroke: #fff;
 }
 
 .time-picker-portal .react-time-picker__button:enabled:hover .react-time-picker__button__icon,
 .time-picker-portal .react-time-picker__button:enabled:focus .react-time-picker__button__icon {
-  stroke: #ccc;
+  stroke: #fff;
 }
 
 .time-picker-portal .react-time-picker__inputGroup__input {
-  color: white;
+  color: #fff;
 }
 
 .time-picker-portal .react-time-picker__inputGroup__amPm {
   background-color: #333 !important;
-  color: white;
+  color: #fff;
+}
+
+.editButton {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.editInput {
+  background: #5251B5;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  color: #fff;
+  padding: 5px;
+  font-size: 1rem;
+  width: 50%;
 }
 
 

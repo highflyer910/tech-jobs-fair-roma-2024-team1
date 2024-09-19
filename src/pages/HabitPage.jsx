@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
@@ -6,6 +6,7 @@ import TimePicker from 'react-time-picker';
 import 'react-calendar/dist/Calendar.css';
 import 'react-time-picker/dist/TimePicker.css';
 import styles from './HabitPage.module.css';
+import { FaPlus, FaChartLine, FaCalendarAlt, FaPencilAlt, FaTrashAlt, FaCheck, FaTimes } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -19,6 +20,8 @@ const HabitPage = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState('09:00');
   const [nameError, setNameError] = useState('');
+  const [editingHabitIndex, setEditingHabitIndex] = useState(null);
+  const [editedHabitName, setEditedHabitName] = useState('');
 
   const navigate = useNavigate();
 
@@ -39,7 +42,8 @@ const HabitPage = () => {
     setDates(dateArray);
   };
 
-  const scheduleNotification = (habit) => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const scheduleNotification = useCallback((habit) => {
     const now = new Date();
     let notificationTime;
 
@@ -68,7 +72,7 @@ const HabitPage = () => {
         }
       }, timeUntilNotification);
     }
-  };
+  });
 
   useEffect(() => {
     getCalendarDates();
@@ -94,7 +98,7 @@ const HabitPage = () => {
     if (storedDate) {
       setSelectedDate(new Date(storedDate));
     }
-  });
+  } , [scheduleNotification]);
 
   const handleModalToggle = () => setShowModal(!showModal);
   const handleCalendarToggle = () => setShowCalendar(!showCalendar);
@@ -173,6 +177,22 @@ const HabitPage = () => {
     localStorage.setItem('habits', JSON.stringify(updatedHabits));
   };
 
+  const handleEditClick = (habitIndex) => {
+    setEditingHabitIndex(habitIndex);
+    setEditedHabitName(habits[habitIndex].name);
+  };
+  
+  const handleSaveEdit = (habitIndex) => {
+    if (editedHabitName.trim() !== '') {
+      const updatedHabits = habits.map((habit, index) => 
+        index === habitIndex ? { ...habit, name: editedHabitName.trim() } : habit
+      );
+      setHabits(updatedHabits);
+      localStorage.setItem('habits', JSON.stringify(updatedHabits));
+    }
+    setEditingHabitIndex(null);
+  };
+
   return (
     <div className={`${styles.habitPage} min-vh-100 d-flex flex-column py-4 py-md-5`}>
       <div className="container">
@@ -185,9 +205,9 @@ const HabitPage = () => {
         <h1 className={`${styles.pageTitle} text-center mb-4`}>Set your goals</h1>
 
         <div className="d-flex justify-content-end mb-3">
-          <button onClick={handleModalToggle} className={`${styles.btnCircle} me-4`}>+</button>
-          <button onClick={handleChartNavigation} className={`${styles.btnCircle} me-4`}>〽</button>
-          <button onClick={handleCalendarToggle} className={`${styles.btnCircle} me-4`}>&#128467;</button>
+          <button onClick={handleModalToggle} className={`${styles.btnCircle} me-4`}><FaPlus /></button>
+          <button onClick={handleChartNavigation} className={`${styles.btnCircle} me-4`}><FaChartLine /></button>
+          <button onClick={handleCalendarToggle} className={`${styles.btnCircle} me-4`}><FaCalendarAlt /></button>
         </div>
 
         <div className="row">
@@ -207,27 +227,50 @@ const HabitPage = () => {
         {habits.map((habit, habitIndex) => (
           <div key={habitIndex} className={`${styles.habitRow} d-flex align-items-center mb-3`}>
             <div className={`${styles.habitName} d-flex align-items-center`}>
-              {habit.name}
-              <button
-                className={`${styles.deleteButton} ms-2`}
-                onClick={() => handleDeleteHabit(habitIndex)}
-                aria-label="Delete habit"
-              >
-                ×
-              </button>
-            </div>
-            <div className={`${styles.completionStrip} d-flex justify-content-between`}>
-              {habit.completions.map((completed, dateIndex) => (
-                <button
-                  key={`${habitIndex}-${dateIndex}`}
-                  className={`${styles.completionButton} ${completed ? styles.completed : styles.notCompleted}`}
-                  onClick={() => toggleHabitCompletion(habitIndex, dateIndex)}
-                >
-                  {completed ? '✔' : '×'}
-                </button>
-              ))}
-            </div>
+              {editingHabitIndex === habitIndex ? (
+                <input
+                type="text"
+                value={editedHabitName}
+                onChange={(e) => setEditedHabitName(e.target.value)}
+                onBlur={() => handleSaveEdit(habitIndex)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') handleSaveEdit(habitIndex);
+              }}
+              autoFocus
+              className={styles.editInput}
+              />
+            ) : (
+            <>
+            {habit.name}
+            <button
+              className={`${styles.btnCircle} ms-2`}
+              onClick={() => handleEditClick(habitIndex)}
+              aria-label="Edit habit"
+            >
+              <FaPencilAlt />
+            </button>
+            <button
+              className={`${styles.btnCircle} ms-2`}
+              onClick={() => handleDeleteHabit(habitIndex)}
+              aria-label="Delete habit"
+            >
+              <FaTrashAlt />
+            </button>
+            </>
+            )}
           </div>
+          <div className={`${styles.completionStrip} d-flex justify-content-between`}>
+            {habit.completions.map((completed, dateIndex) => (
+          <button
+            key={`${habitIndex}-${dateIndex}`}
+            className={`${styles.completionButton} ${completed ? styles.completed : styles.notCompleted}`}
+            onClick={() => toggleHabitCompletion(habitIndex, dateIndex)}
+          >
+            {completed ? <FaCheck /> : <FaTimes />}
+          </button>
+          ))}
+          </div>
+        </div>
         ))}
 
         {habits.length === 0 && (
@@ -296,18 +339,18 @@ const HabitPage = () => {
                   </Form.Group>
 
                   <Form.Group controlId="habitTime" className="mt-3">
-  <Form.Label htmlFor="habitTime" className="text-white">Select Time</Form.Label>
-  <TimePicker
-    onChange={setSelectedTime}
-    value={selectedTime}
-    className={`${styles.inputField} mx-2 border-white bg-transparent text-white`}
-    disableClock={true}
-    clearIcon={null}
-    clockIcon={null}
-    format="h:mm a"
-    portalClassName="time-picker-portal"
-  />
-</Form.Group>
+                    <Form.Label htmlFor="habitTime" className="text-white">Select Time</Form.Label>
+                    <TimePicker
+                      onChange={setSelectedTime}
+                      value={selectedTime}
+                      className={`${styles.inputField} mx-2 border-white bg-transparent text-white`}
+                      disableClock={true}
+                      clearIcon={null}
+                      clockIcon={null}
+                      format="h:mm a"
+                      portalClassName="time-picker-portal"
+                      />
+                    </Form.Group>
                 </>
               )}
 
