@@ -10,7 +10,7 @@ import { FaPlus, FaChartLine, FaCalendarAlt, FaPencilAlt, FaTrashAlt, FaCheck, F
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-import { AddNewHabits, fetchProtectedResource, updateHabit } from "../redux/action/habit";
+import { AddNewHabits, DeleteHabit, fetchProtectedResource, updateHabit, updateHabitCompletion } from "../redux/action/habit";
 
 const HabitPage = () => {
   const [dates, setDates] = useState([]);
@@ -154,7 +154,8 @@ const HabitPage = () => {
     //  localStorage.setItem("selectedDate", date.toISOString());
   };
 
-  const toggleHabitCompletion = (habitIndex, dateIndex) => {
+  const toggleHabitCompletion = (id, currentStatus) => {
+    dispatch(updateHabitCompletion(id, !currentStatus));
     //   setHabits((prevHabits) => {
     //     const updatedHabits = prevHabits.map((habit, index) => {
     //       if (index === habitIndex) {
@@ -183,7 +184,8 @@ const HabitPage = () => {
     //   navigate("/habit-chart", { state: { habits: habits } });
   };
 
-  const handleDeleteHabit = (habitIndex) => {
+  const handleDeleteHabit = (habitId) => {
+    dispatch(DeleteHabit(habitId));
     //   const updatedHabits = habits.filter((_, index) => index !== habitIndex);
     //   setHabits(updatedHabits);
     //   localStorage.setItem("habits", JSON.stringify(updatedHabits));
@@ -199,16 +201,8 @@ const HabitPage = () => {
   };
 
   const handleSaveEdit = (habitId) => {
-    console.log(habitId);
-
     dispatch(updateHabit(habitId, editedHabit));
     setHabitsUpdate(false);
-    //   if (editedHabitName.trim() !== "") {
-    //     const updatedHabits = habits.map((habit, index) => (index === habitIndex ? { ...habit, name: editedHabitName.trim() } : habit));
-    //     setHabits(updatedHabits);
-    //     localStorage.setItem("habits", JSON.stringify(updatedHabits));
-    //   }
-    //   setEditingHabitIndex(null);
   };
 
   return (
@@ -286,7 +280,7 @@ const HabitPage = () => {
               </div>
               <button
                 className={`${styles.completionButton} ${habit.completed ? styles.completed : styles.notCompleted}`}
-                onClick={() => handleCompletionToggle(habit.id, habit.completed)}
+                onClick={() => toggleHabitCompletion(habit.id, habit.completed)}
               >
                 {habit.completed ? <FaCheck /> : <FaTimes />}
               </button>
@@ -328,7 +322,7 @@ const HabitPage = () => {
                 <Form.Label htmlFor="habitFrequency" className="text-white">
                   Frequency
                 </Form.Label>
-                <Form.Select id="habitFrequency" className={styles.inputField}>
+                <Form.Select id="habitFrequency" className={styles.inputField} required>
                   <option value="none">None</option>
                   <option value="everyday">Everyday</option>
                   <option value="every3days">Every 3 Days</option>
