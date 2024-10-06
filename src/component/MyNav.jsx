@@ -28,7 +28,7 @@ const MyNav = () => {
     if (userData) {
       const fetchUsers = async () => {
         try {
-          const response = await fetch("https://gross-kerrie-hackaton-team1-79e26745.koyeb.app/auth/saveUser", {
+          const response = await fetch("https://unsightly-maurise-marinalucentini-fc955053.koyeb.app/auth/saveUser", {
             method: "POST",
             body: JSON.stringify(userData),
             headers: {
@@ -36,7 +36,7 @@ const MyNav = () => {
             },
           });
           const data = await response.json();
-          localStorage.setItem("authToken", data.tokenHabits);
+          localStorage.setItem("authToken", data.token);
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }

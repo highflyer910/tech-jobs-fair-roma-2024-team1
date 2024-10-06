@@ -79,7 +79,7 @@ export const fetchProtectedResource = () => async (dispatch) => {
   const token = localStorage.getItem("authToken");
 
   try {
-    const response = await fetch("https://gross-kerrie-hackaton-team1-79e26745.koyeb.app/habits", {
+    const response = await fetch("https://unsightly-maurise-marinalucentini-fc955053.koyeb.app/habits", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
