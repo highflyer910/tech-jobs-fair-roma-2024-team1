@@ -10,17 +10,10 @@ import { FaPlus, FaChartLine, FaCalendarAlt, FaPencilAlt, FaTrashAlt, FaCheck, F
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  AddNewHabits,
-  createNotification,
-  DeleteHabit,
-  fetchNotifications,
-  fetchProtectedResource,
-  updateHabit,
-  updateHabitCompletion,
-} from "../../redux/action/habit";
+import { createNotification, DeleteHabit, fetchNotifications, fetchProtectedResource, updateHabit, updateHabitCompletion } from "../../redux/action/habit";
 import { useUser } from "@clerk/clerk-react";
 import { IoNotificationsSharp } from "react-icons/io5";
+import CreateHabit from "./CreateHabit";
 
 const HabitPage = () => {
   const { isSignedIn, user } = useUser();
@@ -30,15 +23,15 @@ const HabitPage = () => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [reminder, setReminder] = useState(false);
   const [notificationName, setNotificationName] = useState("");
-
+  const [newHabitName, setNewHabitName] = useState("");
   const [editedHabit, setEditedHabit] = useState({
     name: "",
     frequency: "",
   });
-  const [newHabitName, setNewHabitName] = useState("");
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState("09:00");
-  const [nameError, setNameError] = useState("");
+
   const [habitsUpdate, setHabitsUpdate] = useState(false);
   const [selectedHabitId, setSelectedHabitId] = useState(null);
   const [localHabits, setLocalHabits] = useState([]);
@@ -124,27 +117,6 @@ const HabitPage = () => {
   };
   const handleCalendarToggle = () => setShowCalendar(!showCalendar);
   const handleReaminderToggle = () => setReminder(!reminder);
-  const handleSaveHabit = (e) => {
-    e.preventDefault();
-    if (newHabitName.trim() === "") {
-      setNameError("Please enter a habit name");
-      return;
-    }
-    setNameError("");
-
-    const frequency = document.getElementById("habitFrequency").value;
-    const newHabit = {
-      name: newHabitName,
-      frequency: frequency,
-      reminder: reminder,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      completed: false,
-    };
-
-    dispatch(AddNewHabits(newHabit));
-    setShowModal(false);
-  };
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -367,47 +339,8 @@ const HabitPage = () => {
             </Button>
           </Modal.Body>
         </Modal>
-
-        <Modal show={showModal} onHide={handleModalToggle} centered>
-          <Modal.Header closeButton className={`${styles.modalHeader}`}>
-            <Modal.Title className={`${styles.headerModal} text-white`}>Create Habit</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className={`${styles.modalBody}`}>
-            <Form>
-              <Form.Group>
-                <Form.Label className="text-white">Name</Form.Label>
-                <Form.Control
-                  id="habitName"
-                  type="text"
-                  placeholder="Enter habit"
-                  className={`${styles.inputField} ${nameError ? "is-invalid" : ""}`}
-                  value={newHabitName}
-                  onChange={(e) => {
-                    setNewHabitName(e.target.value);
-                    if (e.target.value.trim() !== "") {
-                      setNameError("");
-                    }
-                  }}
-                  required
-                />
-                {nameError && <div className="invalid-feedback">{nameError}</div>}
-              </Form.Group>
-
-              <Form.Group className="mt-3">
-                <Form.Label className="text-white">Frequency</Form.Label>
-                <Form.Select id="habitFrequency" className={styles.inputField} required>
-                  <option value="everyday">Every day</option>
-                  <option value="every3days">Every 3 Days</option>
-                  <option value="onceaweek">Once a Week</option>
-                </Form.Select>
-              </Form.Group>
-
-              <Button variant="outline-light" onClick={handleSaveHabit} className={`${styles.saveButton} mt-4 w-100`}>
-                Save Habit
-              </Button>
-            </Form>
-          </Modal.Body>
-        </Modal>
+        {/* modal create habit */}
+        <CreateHabit showModal={showModal} handleModalToggle={handleModalToggle} setShowModal={setShowModal} styles={styles} />
 
         <Modal show={showCalendar} onHide={handleCalendarToggle} centered className={styles.calendarModal}>
           <Modal.Header closeButton className={styles.calendarModalHeader}>
