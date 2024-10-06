@@ -187,7 +187,9 @@ const HabitPage = () => {
     setSelectedTime("09:00");
     setReminder(false);
   };
-
+  useEffect(() => {
+    getCalendarDates();
+  }, []);
   return (
     <div className={`${styles.habitPage} min-vh-100 d-flex flex-column py-4 py-md-5`}>
       <div className="container">

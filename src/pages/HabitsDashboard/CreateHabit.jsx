@@ -3,7 +3,6 @@ import { AddNewHabits } from "../../redux/action/habit";
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { GetCategories } from "../../redux/action/category";
-import { useUser } from "@clerk/clerk-react";
 
 const CreateHabit = ({ showModal, handleModalToggle, setShowModal, styles }) => {
   const [nameError, setNameError] = useState("");
@@ -80,6 +79,7 @@ const CreateHabit = ({ showModal, handleModalToggle, setShowModal, styles }) => 
             <Form.Group className="mt-3">
               <Form.Check
                 type="checkbox"
+                className={`${styles.customCheckbox}`}
                 id="frequencyCheckbox"
                 label="Set frequency"
                 checked={showFrequency}
