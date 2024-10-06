@@ -87,6 +87,8 @@ h2 {
 }
 
 .habitRow {
+  display: flex;
+  flex-direction: column;
   border-radius: 8px;
   padding: 10px;
 }
@@ -360,6 +362,9 @@ h2 {
 }
 
 .habitRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   border-radius: 8px;
   padding: 10px;
   margin-bottom: 10px;
@@ -430,17 +435,6 @@ h2 {
 
 .cancelButton:hover {
   background-color: rgba(255, 255, 255, 0.1);
-}
-
-.habitName {
-  color: #fff;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  flex: 1;
-  margin-right: 10px;
 }
 
 .habitActions {

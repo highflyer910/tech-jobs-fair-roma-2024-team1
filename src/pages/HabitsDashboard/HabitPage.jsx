@@ -1,12 +1,25 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Modal, Button, Form, Spinner } from "react-bootstrap";
+import { Modal, Button, Form, Spinner, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Calendar from "react-calendar";
 import TimePicker from "react-time-picker";
 import "react-calendar/dist/Calendar.css";
 import "react-time-picker/dist/TimePicker.css";
 import styles from "./HabitPage.module.css";
-import { FaPlus, FaChartLine, FaCalendarAlt, FaPencilAlt, FaTrashAlt, FaCheck, FaTimes } from "react-icons/fa";
+import {
+  FaPlus,
+  FaChartLine,
+  FaCalendarAlt,
+  FaPencilAlt,
+  FaTrashAlt,
+  FaCheck,
+  FaTimes,
+  FaHeartbeat,
+  FaBriefcase,
+  FaBrain,
+  FaDumbbell,
+  FaBook,
+} from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,7 +29,6 @@ import { IoNotificationsSharp } from "react-icons/io5";
 import CreateHabit from "./CreateHabit";
 
 const HabitPage = () => {
-  const { isSignedIn, user } = useUser();
   const [dates, setDates] = useState([]);
   const [tokenAvailable, setTokenAvailable] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -38,10 +50,7 @@ const HabitPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(fetchNotifications());
-  }, [dispatch]);
-  const { allHabits, loading, success, error, notifications } = useSelector((state) => state.habits);
+  const { allHabits, loading, success, error } = useSelector((state) => state.habits);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -116,10 +125,9 @@ const HabitPage = () => {
     setReminder(false);
   };
   const handleCalendarToggle = () => setShowCalendar(!showCalendar);
-  const handleReaminderToggle = () => setReminder(!reminder);
 
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
+  const handleDateSelect = (item) => {
+    setSelectedDate(item.date);
   };
 
   const toggleHabitCompletion = (id) => {
@@ -190,6 +198,7 @@ const HabitPage = () => {
   useEffect(() => {
     getCalendarDates();
   }, []);
+
   return (
     <div className={`${styles.habitPage} min-vh-100 d-flex flex-column py-4 py-md-5`}>
       <div className="container">
@@ -218,7 +227,11 @@ const HabitPage = () => {
             <h2 className="mb-0 mx-2">Your habits</h2>
             <div className={`${styles.calendarStrip} d-flex justify-content-between mb-4 mt-4 p-2 rounded`}>
               {dates.map((item, index) => (
-                <div key={index} className={`${styles.calendarDay} text-center p-1 rounded ${item.isToday ? styles.today : ""}`}>
+                <div
+                  key={index}
+                  className={`${styles.calendarDay} text-center p-1 rounded ${item.isToday ? styles.today : ""}`}
+                  onClick={() => handleDateSelect(item)}
+                >
                   <div className={styles.dateNumber}>{item.date}</div>
                   <div className={styles.dayName}>{item.day}</div>
                 </div>
@@ -226,78 +239,88 @@ const HabitPage = () => {
             </div>
           </div>
         </div>
-
         {isLoading ? (
           <div className={styles.loadingOverlay}>
             <div className={styles.spinner}></div>
           </div>
         ) : localHabits.length > 0 ? (
-          [...new Map(localHabits.map((habit) => [habit.id, habit])).values()].map((habit) => (
-            <div key={habit.id} className={`${styles.habitRow}`}>
-              <div className={`${styles.habitName}`}>
-                {habitsUpdate && selectedHabitId === habit.id ? (
-                  <div className={styles.editMode}>
-                    <input
-                      type="text"
-                      value={editedHabit.name}
-                      onChange={(e) => setEditedHabit({ ...editedHabit, name: e.target.value })}
-                      className={styles.editInput}
-                      placeholder="Habit name"
-                    />
-                    <input
-                      type="text"
-                      value={editedHabit.frequency}
-                      onChange={(e) => setEditedHabit({ ...editedHabit, frequency: e.target.value })}
-                      className={styles.editInput}
-                      placeholder="Frequency"
-                    />
-                    <div className={styles.editButtons}>
-                      <button onClick={() => handleSaveEdit(habit.id)} className={styles.saveButton}>
-                        Save
-                      </button>
-                      <button
-                        onClick={() => {
-                          setHabitsUpdate(false);
-                          setSelectedHabitId(null);
-                        }}
-                        className={styles.cancelButton}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <span>
-                      Name: {habit.name} <br /> Frequency: {habit.frequency}
-                    </span>
-                    <div className={`${styles.habitActions} d-flex align-items-center`}>
-                      <button className={`${styles.habitActionBtn} ms-2`} onClick={() => handleEditClick(habit)} aria-label="Edit habit">
-                        <FaPencilAlt />
-                      </button>
-                      <button
-                        className={`${styles.habitActionBtn} ms-2`}
-                        onClick={() => {
-                          setReminder(!reminder);
-                          setSelectedHabitId(habit.id);
-                          setNotificationName(habit.name);
-                        }}
-                      >
-                        <IoNotificationsSharp />
-                      </button>
-                      <button
-                        className={`${styles.habitActionBtn} ms-2 ${habit.completed ? styles.completed : styles.notCompleted}`}
-                        onClick={() => toggleHabitCompletion(habit.id)}
-                      >
-                        {habit.completed ? <FaCheck /> : <FaTimes />}
-                      </button>
-                      <button className={`${styles.habitActionBtn} ms-2`} onClick={() => handleDeleteHabit(habit.id)} aria-label="Delete habit">
-                        <FaTrashAlt />
-                      </button>
-                    </div>
-                  </>
-                )}
+          //  Raggruppiamo le abitudini per categoria
+          Object.entries(
+            [...new Map(localHabits.map((habit) => [habit.id, habit])).values()].reduce((acc, habit) => {
+              const category = habit.category.name;
+              if (!acc[category]) acc[category] = [];
+              acc[category].push(habit);
+              return acc;
+            }, {})
+          ).map(([category, habits]) => (
+            <div key={category} className={`${styles.categoryGroup}`}>
+              {/*  Icona in base alla categoria */}
+              <div className="d-flex align-items-center">
+                {category === "Health" && <FaHeartbeat size={24} />}
+                {category === "Work" && <FaBriefcase size={24} />}
+                {category === "Personal Development" && <FaBrain size={24} />}
+                {category === "Fitness" && <FaDumbbell size={24} />}
+                {category === "Education" && <FaBook size={24} />}
+                <h3 className="m-0 d-flex align-items-center mx-3">{category}</h3>
               </div>
+
+              {/* Mappiamo le abitudini all'interno di ogni categoria */}
+              {habits.map((habit) => (
+                <div key={habit.id} className={`${styles.habitRow}`}>
+                  <div className={`${styles.habitName} flex-column flex-md-row my-3`}>
+                    {habitsUpdate && selectedHabitId === habit.id ? (
+                      <div className={styles.editMode}>
+                        <input
+                          type="text"
+                          value={editedHabit.name}
+                          onChange={(e) => setEditedHabit({ ...editedHabit, name: e.target.value })}
+                          className={styles.editInput}
+                          placeholder="Habit name"
+                        />
+                        <input
+                          type="text"
+                          value={editedHabit.frequency}
+                          onChange={(e) => setEditedHabit({ ...editedHabit, frequency: e.target.value })}
+                          className={styles.editInput}
+                          placeholder="Frequency"
+                        />
+                        <div className={styles.editButtons}>
+                          <button onClick={() => handleSaveEdit(habit.id)} className={styles.saveButton}>
+                            Save
+                          </button>
+                          <button
+                            onClick={() => {
+                              setHabitsUpdate(false);
+                              setSelectedHabitId(null);
+                            }}
+                            className={styles.cancelButton}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <h4>{habit.name}</h4>
+                        <div className={`${styles.habitActions} d-flex align-items-center`}>
+                          <button
+                            className={`${styles.habitActionBtn} ms-2 ${habit.completed ? styles.completed : styles.notCompleted}`}
+                            onClick={() => toggleHabitCompletion(habit.id)}
+                          >
+                            {habit.completed ? <FaCheck /> : <FaTimes />}
+                          </button>
+                          <button className={`${styles.habitActionBtn} ms-2`} onClick={() => handleEditClick(habit)} aria-label="Edit habit">
+                            <FaPencilAlt />
+                          </button>
+                          <button className={`${styles.habitActionBtn} ms-2`} onClick={() => handleDeleteHabit(habit.id)} aria-label="Delete habit">
+                            <FaTrashAlt />
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           ))
         ) : (
@@ -305,7 +328,7 @@ const HabitPage = () => {
             <div className={`${styles.bigCircle} d-flex align-items-center justify-content-center text-center mt-4 p-3`}>You have no active habits</div>
           </div>
         )}
-
+        {/* 
         <Modal show={reminder} onHide={handleReaminderToggle} centered>
           <Modal.Header closeButton className={`${styles.modalHeader}`}>
             <Modal.Title className={`${styles.headerModal} text-white`}>Add Notifications</Modal.Title>
@@ -340,11 +363,11 @@ const HabitPage = () => {
               Save Notification
             </Button>
           </Modal.Body>
-        </Modal>
+        </Modal> */}
         {/* modal create habit */}
         <CreateHabit showModal={showModal} handleModalToggle={handleModalToggle} setShowModal={setShowModal} styles={styles} />
-
-        <Modal show={showCalendar} onHide={handleCalendarToggle} centered className={styles.calendarModal}>
+        {/* calendar */}
+        {/* <Modal show={showCalendar} onHide={handleCalendarToggle} centered className={styles.calendarModal}>
           <Modal.Header closeButton className={styles.calendarModalHeader}>
             <Modal.Title>Habits Calendar</Modal.Title>
           </Modal.Header>
@@ -370,7 +393,7 @@ const HabitPage = () => {
               />
             )}
           </Modal.Body>
-        </Modal>
+        </Modal> */}
       </div>
       <ToastContainer />
     </div>
