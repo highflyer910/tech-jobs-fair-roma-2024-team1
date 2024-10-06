@@ -98,14 +98,14 @@ export const fetchProtectedResource = () => async (dispatch) => {
     dispatch(fetchResourceFailure(error.message));
   }
 };
-export const updateHabitCompletion = (id, completed) => async (dispatch) => {
+export const updateHabitCompletion = (id) => async (dispatch) => {
   const token = localStorage.getItem("authToken");
   dispatch(updateHabitRequest());
 
   try {
-    const response = await fetch(`https://gross-kerrie-hackaton-team1-79e26745.koyeb.app/habits/${id}`, {
+    const response = await fetch(`https://unsightly-maurise-marinalucentini-fc955053.koyeb.app/habits/${id}/complete`, {
       method: "PATCH",
-      body: JSON.stringify({ completed }),
+
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

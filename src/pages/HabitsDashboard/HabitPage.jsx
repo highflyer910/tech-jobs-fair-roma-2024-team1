@@ -18,7 +18,7 @@ import {
   fetchProtectedResource,
   updateHabit,
   updateHabitCompletion,
-} from "../redux/action/habit";
+} from "../../redux/action/habit";
 import { useUser } from "@clerk/clerk-react";
 import { IoNotificationsSharp } from "react-icons/io5";
 
@@ -120,7 +120,7 @@ const HabitPage = () => {
   const handleModalToggle = () => {
     setShowModal(!showModal);
     setNewHabitName("");
-    setReminder(false); 
+    setReminder(false);
   };
   const handleCalendarToggle = () => setShowCalendar(!showCalendar);
   const handleReaminderToggle = () => setReminder(!reminder);
@@ -150,8 +150,8 @@ const HabitPage = () => {
     setSelectedDate(date);
   };
 
-  const toggleHabitCompletion = (id, currentStatus) => {
-    dispatch(updateHabitCompletion(id, !currentStatus));
+  const toggleHabitCompletion = (id) => {
+    dispatch(updateHabitCompletion(id));
   };
 
   const handleChartNavigation = () => {
@@ -175,11 +175,7 @@ const HabitPage = () => {
     setIsLoading(true);
     dispatch(updateHabit(habitId, editedHabit))
       .then(() => {
-        setLocalHabits(prevHabits =>
-          prevHabits.map(habit =>
-            habit.id === habitId ? { ...habit, ...editedHabit } : habit
-          )
-        );
+        setLocalHabits((prevHabits) => prevHabits.map((habit) => (habit.id === habitId ? { ...habit, ...editedHabit } : habit)));
         setHabitsUpdate(false);
         setIsLoading(false);
       })
@@ -188,7 +184,6 @@ const HabitPage = () => {
         toast.error("Failed to update habit. Please try again.");
       });
   };
-
 
   const handleSaveNotification = (e) => {
     e.preventDefault();
@@ -229,9 +224,9 @@ const HabitPage = () => {
             <img src="/habit.svg" alt="Habit Icon" />
           </div>
         </div>
-  
+
         <h1 className={`${styles.pageTitle} text-center mb-4`}>Set your goals</h1>
-  
+
         <div className="d-flex justify-content-end mb-3">
           <button onClick={handleModalToggle} className={`${styles.btnCircle} me-4`}>
             <FaPlus />
@@ -243,7 +238,7 @@ const HabitPage = () => {
             <FaCalendarAlt />
           </button>
         </div>
-  
+
         <div className="row">
           <div className="col-12 d-flex justify-content-between align-items-center">
             <h2 className="mb-0 mx-2">Your habits</h2>
@@ -257,7 +252,7 @@ const HabitPage = () => {
             </div>
           </div>
         </div>
-  
+
         {isLoading ? (
           <div className={styles.loadingOverlay}>
             <div className={styles.spinner}></div>
@@ -286,17 +281,22 @@ const HabitPage = () => {
                       <button onClick={() => handleSaveEdit(habit.id)} className={styles.saveButton}>
                         Save
                       </button>
-                      <button onClick={() => {
-                        setHabitsUpdate(false);
-                        setSelectedHabitId(null);
-                      }} className={styles.cancelButton}>
+                      <button
+                        onClick={() => {
+                          setHabitsUpdate(false);
+                          setSelectedHabitId(null);
+                        }}
+                        className={styles.cancelButton}
+                      >
                         Cancel
                       </button>
                     </div>
                   </div>
                 ) : (
                   <>
-                    <span>Name: {habit.name} <br/> Frequency: {habit.frequency}</span>
+                    <span>
+                      Name: {habit.name} <br /> Frequency: {habit.frequency}
+                    </span>
                     <div className={`${styles.habitActions} d-flex align-items-center`}>
                       <button className={`${styles.habitActionBtn} ms-2`} onClick={() => handleEditClick(habit)} aria-label="Edit habit">
                         <FaPencilAlt />
@@ -313,7 +313,7 @@ const HabitPage = () => {
                       </button>
                       <button
                         className={`${styles.habitActionBtn} ms-2 ${habit.completed ? styles.completed : styles.notCompleted}`}
-                        onClick={() => toggleHabitCompletion(habit.id, habit.completed)}
+                        onClick={() => toggleHabitCompletion(habit.id)}
                       >
                         {habit.completed ? <FaCheck /> : <FaTimes />}
                       </button>
@@ -328,12 +328,10 @@ const HabitPage = () => {
           ))
         ) : (
           <div className="flex-grow-1 d-flex align-items-center justify-content-center">
-            <div className={`${styles.bigCircle} d-flex align-items-center justify-content-center text-center mt-4 p-3`}>
-              You have no active habits
-            </div>
+            <div className={`${styles.bigCircle} d-flex align-items-center justify-content-center text-center mt-4 p-3`}>You have no active habits</div>
           </div>
         )}
-  
+
         <Modal show={reminder} onHide={handleReaminderToggle} centered>
           <Modal.Header closeButton className={`${styles.modalHeader}`}>
             <Modal.Title className={`${styles.headerModal} text-white`}>Add Notifications</Modal.Title>
@@ -349,7 +347,7 @@ const HabitPage = () => {
                   onChange={(e) => setSelectedDate(new Date(e.target.value))}
                 />
               </Form.Group>
-  
+
               <Form.Group className="mt-3">
                 <Form.Label className="text-white">Select Time</Form.Label>
                 <TimePicker
@@ -369,7 +367,7 @@ const HabitPage = () => {
             </Button>
           </Modal.Body>
         </Modal>
-  
+
         <Modal show={showModal} onHide={handleModalToggle} centered>
           <Modal.Header closeButton className={`${styles.modalHeader}`}>
             <Modal.Title className={`${styles.headerModal} text-white`}>Create Habit</Modal.Title>
@@ -394,7 +392,7 @@ const HabitPage = () => {
                 />
                 {nameError && <div className="invalid-feedback">{nameError}</div>}
               </Form.Group>
-  
+
               <Form.Group className="mt-3">
                 <Form.Label className="text-white">Frequency</Form.Label>
                 <Form.Select id="habitFrequency" className={styles.inputField} required>
@@ -403,14 +401,14 @@ const HabitPage = () => {
                   <option value="onceaweek">Once a Week</option>
                 </Form.Select>
               </Form.Group>
-  
+
               <Button variant="outline-light" onClick={handleSaveHabit} className={`${styles.saveButton} mt-4 w-100`}>
                 Save Habit
               </Button>
             </Form>
           </Modal.Body>
         </Modal>
-  
+
         <Modal show={showCalendar} onHide={handleCalendarToggle} centered className={styles.calendarModal}>
           <Modal.Header closeButton className={styles.calendarModalHeader}>
             <Modal.Title>Habits Calendar</Modal.Title>
@@ -424,13 +422,14 @@ const HabitPage = () => {
                 tileClassName={({ date, view }) => {
                   const calendarDate = new Date(date);
                   const hasHabit = localHabits.some((habit) => new Date(habit.createdAt).toDateString() === calendarDate.toDateString());
-                  const hasReminder = Array.isArray(notifications) &&
+                  const hasReminder =
+                    Array.isArray(notifications) &&
                     notifications.some((notification) => new Date(notification.scheduledAt).toDateString() === calendarDate.toDateString());
-  
+
                   const classNames = [];
                   if (hasHabit) classNames.push(styles.hasHabit);
                   if (hasReminder) classNames.push(styles.hasReminder);
-  
+
                   return classNames.join(" ") || null;
                 }}
               />
@@ -441,6 +440,6 @@ const HabitPage = () => {
       <ToastContainer />
     </div>
   );
-}
+};
 
 export default HabitPage;
