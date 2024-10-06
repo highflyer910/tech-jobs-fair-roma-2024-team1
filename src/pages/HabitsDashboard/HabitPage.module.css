@@ -391,6 +391,7 @@ h2 {
   display: flex;
   align-items: center;
   width: 100%;
+  justify-content: space-between;
 }
 
 .editInput {
@@ -402,7 +403,7 @@ h2 {
   font-size: 14px;
   margin-right: 10px;
   flex: 1;
-  min-width: 120px;
+  min-width: 70px;
 }
 
 .editButtons {

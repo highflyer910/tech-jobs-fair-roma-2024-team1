@@ -51,6 +51,7 @@ const fetchResourceFailure = (error) => ({
   type: GET_HABITS_FAILURE,
   payload: error,
 });
+// update and work it
 export const AddNewHabits = (habitsData) => async (dispatch) => {
   const token = localStorage.getItem("authToken");
   dispatch(addNewHabitsRequest());
@@ -153,7 +154,7 @@ export const updateHabit = (id, habitData) => async (dispatch) => {
   dispatch(updateHabitRequest());
 
   try {
-    const response = await fetch(`https://gross-kerrie-hackaton-team1-79e26745.koyeb.app/habits/modHabits/${id}`, {
+    const response = await fetch(`https://unsightly-maurise-marinalucentini-fc955053.koyeb.app/habits/${id}`, {
       method: "PATCH",
       body: JSON.stringify(habitData),
       headers: {
