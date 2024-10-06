@@ -8,10 +8,12 @@ import { useUser } from "@clerk/clerk-react";
 const CreateHabit = ({ showModal, handleModalToggle, setShowModal, styles }) => {
   const [nameError, setNameError] = useState("");
   const [newHabitName, setNewHabitName] = useState("");
+  const [showFrequency, setShowFrequency] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [reminder, setReminder] = useState(false);
+  const [selectedFrequency, setSelectedFrequency] = useState("");
   const { loading, content, success } = useSelector((state) => state.category);
-  const { isSignedIn, user } = useUser();
+
   const dispatch = useDispatch();
   const handleSaveHabit = (e) => {
     e.preventDefault();
@@ -21,14 +23,12 @@ const CreateHabit = ({ showModal, handleModalToggle, setShowModal, styles }) => 
     }
     setNameError("");
 
-    const frequency = document.getElementById("habitFrequency").value;
     const newHabit = {
       name: newHabitName,
-      frequency: frequency,
+      frequency: selectedFrequency,
       category: selectedCategory,
       reminder: reminder,
       completed: false,
-      users: [user.id],
     };
 
     dispatch(AddNewHabits(newHabit));
@@ -44,14 +44,14 @@ const CreateHabit = ({ showModal, handleModalToggle, setShowModal, styles }) => 
           <Modal.Title className={`${styles.headerModal} text-white text-center`}>Create Habit</Modal.Title>
         </Modal.Header>
         <Modal.Body className={`${styles.modalBody}`}>
-          <Form>
+          <Form onSubmit={handleSaveHabit}>
             <Form.Group className="mt-3">
               <Form.Label className="text-white">Category</Form.Label>
               <Form.Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className={styles.inputField} required>
                 <option value="">Select a category</option>
                 {content &&
                   content.map((category) => (
-                    <option key={category.id} value={category.id}>
+                    <option key={category.id} value={category.name}>
                       {category.name}
                     </option>
                   ))}
@@ -76,24 +76,47 @@ const CreateHabit = ({ showModal, handleModalToggle, setShowModal, styles }) => 
               {nameError && <div className="invalid-feedback">{nameError}</div>}
             </Form.Group>
 
-            <Form.Group className="mt-3">
-              <Form.Label className="text-white">Frequency</Form.Label>
-              <Form.Select id="habitFrequency" className={styles.inputField} required>
-                <option value="everyday">Every day</option>
-                <option value="every3days">Every 3 Days</option>
-                <option value="onceaweek">Once a Week</option>
-              </Form.Select>
-            </Form.Group>
+            {/* Checkbox per abilitare la frequenza */}
             <Form.Group className="mt-3">
               <Form.Check
                 type="checkbox"
-                id="reminderCheckbox"
-                label="Set reminder"
-                checked={reminder}
-                onChange={(e) => setReminder(e.target.checked)} // Aggiorna lo stato di reminder
+                id="frequencyCheckbox"
+                label="Set frequency"
+                checked={showFrequency}
+                onChange={(e) => setShowFrequency(e.target.checked)} // Mostra/nasconde la frequenza
               />
             </Form.Group>
-            <Button variant="outline-light" onClick={handleSaveHabit} className={`${styles.saveButton} mt-4 w-100`}>
+
+            {/* Selezione della Frequenza (solo se abilitata) */}
+            {showFrequency && (
+              <>
+                <Form.Group className="mt-3">
+                  <Form.Label className="text-white">Frequency</Form.Label>
+                  <Form.Select
+                    id="habitFrequency"
+                    value={selectedFrequency}
+                    onChange={(e) => setSelectedFrequency(e.target.value)}
+                    className={styles.inputField}
+                  >
+                    <option value="">Select a frequency</option>
+                    <option value="everyday">Every day</option>
+                    <option value="every3days">Every 3 Days</option>
+                    <option value="onceaweek">Once a Week</option>
+                    <option value="onceamonth">Once a Month</option>
+                  </Form.Select>
+                </Form.Group>
+                <Form.Group className="mt-3">
+                  <Form.Check
+                    type="checkbox"
+                    id="reminderCheckbox"
+                    label="Set reminder"
+                    checked={reminder}
+                    onChange={(e) => setReminder(e.target.checked)} // Aggiorna lo stato di reminder
+                  />
+                </Form.Group>
+              </>
+            )}
+            <Button variant="outline-light" type="submit" className={`${styles.saveButton} mt-4 w-100`}>
               Save Habit
             </Button>
           </Form>
