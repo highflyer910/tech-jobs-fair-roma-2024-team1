@@ -55,7 +55,7 @@ export const AddNewHabits = (habitsData) => async (dispatch) => {
   const token = localStorage.getItem("authToken");
   dispatch(addNewHabitsRequest());
   try {
-    const response = await fetch("https://gross-kerrie-hackaton-team1-79e26745.koyeb.app/habits", {
+    const response = await fetch("https://unsightly-maurise-marinalucentini-fc955053.koyeb.app/habits", {
       method: "POST",
       body: JSON.stringify(habitsData),
       headers: {
@@ -75,6 +75,7 @@ export const AddNewHabits = (habitsData) => async (dispatch) => {
   }
 };
 
+// get all habit update and work it
 export const fetchProtectedResource = () => async (dispatch) => {
   const token = localStorage.getItem("authToken");
 
@@ -126,6 +127,7 @@ export const updateHabitCompletion = (id) => async (dispatch) => {
     throw error;
   }
 };
+//  delete habit action update and work it
 export const DeleteHabit = (habitsId) => async (dispatch) => {
   const token = localStorage.getItem("authToken");
   try {
