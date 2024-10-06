@@ -129,7 +129,7 @@ export const updateHabitCompletion = (id) => async (dispatch) => {
 export const DeleteHabit = (habitsId) => async (dispatch) => {
   const token = localStorage.getItem("authToken");
   try {
-    const response = await fetch(`https://gross-kerrie-hackaton-team1-79e26745.koyeb.app/habits/${habitsId}`, {
+    const response = await fetch(`https://unsightly-maurise-marinalucentini-fc955053.koyeb.app/habits/${habitsId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
