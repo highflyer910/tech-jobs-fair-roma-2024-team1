@@ -110,6 +110,7 @@ const CreateHabit = ({ showModal, handleModalToggle, setShowModal, styles }) => 
                     type="checkbox"
                     id="reminderCheckbox"
                     label="Set reminder"
+                    className={`${styles.customCheckbox}`}
                     checked={reminder}
                     onChange={(e) => setReminder(e.target.checked)} // Aggiorna lo stato di reminder
                   />

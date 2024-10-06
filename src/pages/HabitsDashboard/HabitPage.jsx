@@ -232,7 +232,7 @@ const HabitPage = () => {
             <div className={styles.spinner}></div>
           </div>
         ) : localHabits.length > 0 ? (
-          localHabits.map((habit) => (
+          [...new Map(localHabits.map((habit) => [habit.id, habit])).values()].map((habit) => (
             <div key={habit.id} className={`${styles.habitRow}`}>
               <div className={`${styles.habitName}`}>
                 {habitsUpdate && selectedHabitId === habit.id ? (
