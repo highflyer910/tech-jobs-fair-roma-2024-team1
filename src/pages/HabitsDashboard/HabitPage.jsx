@@ -140,6 +140,26 @@ const HabitPage = () => {
     setHabitsUpdate(true);
     setSelectedHabitId(habit.id);
   };
+  // filtra habit per la settimana corrente
+  const filterHabitsForCurrentWeek = () => {
+    const currentDate = new Date();
+    const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
+    const endOfWeek = new Date(currentDate.setDate(startOfWeek.getDate() + 6));
+
+    return localHabits.filter((habit) => {
+      // Controlla se almeno una delle frequencyDates rientra nella settimana corrente
+      const hasFrequencyDates = habit.frequencyDates.length > 0;
+
+      return hasFrequencyDates
+        ? habit.frequencyDates.some((date) => {
+            const habitDate = new Date(date);
+            return habitDate >= startOfWeek && habitDate <= endOfWeek;
+          })
+        : true; // Include le abitudini con frequencyDates vuoto
+    });
+  };
+
+  const currentWeekHabits = filterHabitsForCurrentWeek();
 
   useEffect(() => {
     getCalendarDates();
@@ -199,7 +219,7 @@ const HabitPage = () => {
               acc[category].push(habit);
               return acc;
             }, {})
-          ).map(([category, habits]) => (
+          ).map(([category]) => (
             <div key={category} className={`${styles.categoryGroup}`}>
               {/*  Icona in base alla categoria */}
               <div className="d-flex align-items-center">
@@ -211,70 +231,41 @@ const HabitPage = () => {
                 <h3 className="m-0 d-flex align-items-center mx-3">{category}</h3>
               </div>
 
-              {/* Mappiamo le abitudini all'interno di ogni categoria */}
-              {habits.map((habit) => (
-                <div key={habit.id} className={`${styles.habitRow}`}>
-                  <div className={`${styles.habitName} flex-column flex-md-row my-3`}>
-                    {habitsUpdate && selectedHabitId === habit.id ? (
-                      <UpdateHabit
-                        styles={styles}
-                        setHabitsUpdate={setHabitsUpdate}
-                        setSelectedHabitId={setSelectedHabitId}
-                        setIsLoading={setIsLoading}
-                        habit={habit}
-                      />
-                    ) : (
-                      // <div className={styles.editMode}>
-                      //   <input
-                      //     type="text"
-                      //     value={editedHabit.name}
-                      //     onChange={(e) => setEditedHabit({ ...editedHabit, name: e.target.value })}
-                      //     className={styles.editInput}
-                      //     placeholder="Habit name"
-                      //   />
-                      //   <input
-                      //     type="text"
-                      //     value={editedHabit.frequency}
-                      //     onChange={(e) => setEditedHabit({ ...editedHabit, frequency: e.target.value })}
-                      //     className={styles.editInput}
-                      //     placeholder="Frequency"
-                      //   />
-                      //   <div className={styles.editButtons}>
-                      //     <button onClick={() => handleSaveEdit(habit.id)} className={styles.saveButton}>
-                      //       Save
-                      //     </button>
-                      //     <button
-                      //       onClick={() => {
-                      //         setHabitsUpdate(false);
-                      //         setSelectedHabitId(null);
-                      //       }}
-                      //       className={styles.cancelButton}
-                      //     >
-                      //       Cancel
-                      //     </button>
-                      //   </div>
-                      // </div>
-                      <>
-                        <h4>{habit.name}</h4>
-                        <div className={`${styles.habitActions} d-flex align-items-center`}>
-                          <button
-                            className={`${styles.habitActionBtn} ms-2 ${habit.completed ? styles.completed : styles.notCompleted}`}
-                            onClick={() => toggleHabitCompletion(habit.id)}
-                          >
-                            {habit.completed ? <FaCheck /> : <FaTimes />}
-                          </button>
-                          <button className={`${styles.habitActionBtn} ms-2`} onClick={() => handleEditClick(habit)} aria-label="Edit habit">
-                            <FaPencilAlt />
-                          </button>
-                          <button className={`${styles.habitActionBtn} ms-2`} onClick={() => handleDeleteHabit(habit.id)} aria-label="Delete habit">
-                            <FaTrashAlt />
-                          </button>
-                        </div>
-                      </>
-                    )}
+              {/* Mappiamo le abitudini all'interno di ogni categoria in base alla settimana */}
+              {currentWeekHabits.length > 0 &&
+                currentWeekHabits.map((habit) => (
+                  <div key={habit.id} className={`${styles.habitRow}`}>
+                    <div className={`${styles.habitName} flex-column flex-md-row my-3`}>
+                      {habitsUpdate && selectedHabitId === habit.id ? (
+                        <UpdateHabit
+                          styles={styles}
+                          setHabitsUpdate={setHabitsUpdate}
+                          setSelectedHabitId={setSelectedHabitId}
+                          setIsLoading={setIsLoading}
+                          habit={habit}
+                        />
+                      ) : (
+                        <>
+                          <h4>{habit.name}</h4>
+                          <div className={`${styles.habitActions} d-flex align-items-center`}>
+                            <button
+                              className={`${styles.habitActionBtn} ms-2 ${habit.completed ? styles.completed : styles.notCompleted}`}
+                              onClick={() => toggleHabitCompletion(habit.id)}
+                            >
+                              {habit.completed ? <FaCheck /> : <FaTimes />}
+                            </button>
+                            <button className={`${styles.habitActionBtn} ms-2`} onClick={() => handleEditClick(habit)} aria-label="Edit habit">
+                              <FaPencilAlt />
+                            </button>
+                            <button className={`${styles.habitActionBtn} ms-2`} onClick={() => handleDeleteHabit(habit.id)} aria-label="Delete habit">
+                              <FaTrashAlt />
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           ))
         ) : (
