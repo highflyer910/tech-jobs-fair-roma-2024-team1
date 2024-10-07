@@ -242,7 +242,8 @@ const HabitPage = () => {
           //  Raggruppiamo le abitudini per categoria
           Object.entries(
             [...new Map(localHabits.map((habit) => [habit.id, habit])).values()].reduce((acc, habit) => {
-              const category = habit.category.name;
+              const category = habit.category && habit.category.name ? habit.category.name : "Uncategorized";
+
               if (!acc[category]) acc[category] = [];
               acc[category].push(habit);
               return acc;
