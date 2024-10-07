@@ -22,7 +22,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-import { createNotification, DeleteHabit, fetchProtectedResource, updateHabitCompletion } from "../../redux/action/habit";
+import { DeleteHabit, fetchProtectedResource, updateHabitCompletion } from "../../redux/action/habit";
 
 import CreateHabit from "./CreateHabit";
 import UpdateHabit from "./Updatehabit";
@@ -33,15 +33,10 @@ const HabitPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [reminder, setReminder] = useState(false);
-  const [notificationName, setNotificationName] = useState("");
+
   const [newHabitName, setNewHabitName] = useState("");
-  // const [editedHabit, setEditedHabit] = useState({
-  //   name: "",
-  //   frequency: "",
-  // });
 
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedTime, setSelectedTime] = useState("09:00");
 
   const [habitsUpdate, setHabitsUpdate] = useState(false);
   const [selectedHabitId, setSelectedHabitId] = useState(null);
@@ -146,50 +141,6 @@ const HabitPage = () => {
     setSelectedHabitId(habit.id);
   };
 
-  // const handleSaveEdit = (habitId) => {
-  //   setIsLoading(true);
-  //   dispatch(updateHabit(habitId, editedHabit))
-  //     .then(() => {
-  //       setLocalHabits((prevHabits) => prevHabits.map((habit) => (habit.id === habitId ? { ...habit, ...editedHabit } : habit)));
-  //       setHabitsUpdate(false);
-  //       setIsLoading(false);
-  //     })
-  //     .catch(() => {
-  //       setIsLoading(false);
-  //       toast.error("Failed to update habit. Please try again.");
-  //     });
-  // };
-
-  const handleSaveNotification = (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    const selectedDateTime = new Date(selectedDate);
-    const [hours, minutes] = selectedTime.split(":");
-    selectedDateTime.setHours(hours);
-    selectedDateTime.setMinutes(minutes);
-
-    const message = `Reminder: It's time for your habit! ${notificationName}`;
-
-    // Crea la notifica
-    dispatch(createNotification(notificationData))
-      .then(() => {
-        setIsLoading(false);
-        setReminder(false);
-        toast.success("Notification set successfully!");
-      })
-      .catch(() => {
-        setIsLoading(false);
-        toast.error("Failed to set notification. Please try again.");
-      });
-
-    // Invia la notifica
-    dispatch(createNotification(notificationData));
-
-    // Resetta il modulo notifica
-    setSelectedDate(null);
-    setSelectedTime("09:00");
-    setReminder(false);
-  };
   useEffect(() => {
     getCalendarDates();
   }, []);
@@ -332,41 +283,7 @@ const HabitPage = () => {
           </div>
         )}
         {/* 
-        <Modal show={reminder} onHide={handleReaminderToggle} centered>
-          <Modal.Header closeButton className={`${styles.modalHeader}`}>
-            <Modal.Title className={`${styles.headerModal} text-white`}>Add Notifications</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className={`${styles.modalBody}`}>
-            <Form>
-              <Form.Group className="mt-3">
-                <Form.Label className="text-white">Select Date</Form.Label>
-                <Form.Control
-                  id="habitDate"
-                  type="date"
-                  className={`${styles.inputField} mx-auto`}
-                  onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                />
-              </Form.Group>
-
-              <Form.Group className="mt-3">
-                <Form.Label className="text-white">Select Time</Form.Label>
-                <TimePicker
-                  onChange={setSelectedTime}
-                  value={selectedTime}
-                  className={`${styles.inputField} mx-2 border-white bg-transparent text-white`}
-                  disableClock={true}
-                  clearIcon={null}
-                  clockIcon={null}
-                  format="h:mm a"
-                  portalClassName="time-picker-portal"
-                />
-              </Form.Group>
-            </Form>
-            <Button onClick={handleSaveNotification} className={`${styles.saveButton} mt-4 w-100`}>
-              Save Notification
-            </Button>
-          </Modal.Body>
-        </Modal> */}
+      
         {/* modal create habit */}
         <CreateHabit showModal={showModal} handleModalToggle={handleModalToggle} setShowModal={setShowModal} styles={styles} />
         {/* calendar */}

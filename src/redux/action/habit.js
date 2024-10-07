@@ -51,7 +51,7 @@ const fetchResourceFailure = (error) => ({
   type: GET_HABITS_FAILURE,
   payload: error,
 });
-// update and work it
+// add new habit update and work
 export const AddNewHabits = (habitsData) => async (dispatch) => {
   const token = localStorage.getItem("authToken");
   dispatch(addNewHabitsRequest());
@@ -76,7 +76,7 @@ export const AddNewHabits = (habitsData) => async (dispatch) => {
   }
 };
 
-// get all habit update and work it
+// get all habit update and work
 export const fetchProtectedResource = () => async (dispatch) => {
   const token = localStorage.getItem("authToken");
 
@@ -100,12 +100,13 @@ export const fetchProtectedResource = () => async (dispatch) => {
     dispatch(fetchResourceFailure(error.message));
   }
 };
-export const updateHabitCompletion = (id) => async (dispatch) => {
+
+export const updateHabitCompletion = (habitsId) => async (dispatch) => {
   const token = localStorage.getItem("authToken");
   dispatch(updateHabitRequest());
 
   try {
-    const response = await fetch(`https://unsightly-maurise-marinalucentini-fc955053.koyeb.app/habits/${id}/complete`, {
+    const response = await fetch(`https://unsightly-maurise-marinalucentini-fc955053.koyeb.app/habits/${habitsId}/complete`, {
       method: "PATCH",
 
       headers: {
@@ -113,7 +114,8 @@ export const updateHabitCompletion = (id) => async (dispatch) => {
         Authorization: `Bearer ${token}`,
       },
     });
-
+    console.log("Response status:", response.status);
+    console.log("Response body:", await response.json());
     const data = await response.json();
 
     if (!response.ok) {
@@ -149,6 +151,7 @@ export const DeleteHabit = (habitsId) => async (dispatch) => {
     dispatch(updateHabitFailure(error.message));
   }
 };
+// edit habit update and work
 export const updateHabit = (id, habitData) => async (dispatch) => {
   const token = localStorage.getItem("authToken");
   dispatch(updateHabitRequest());
@@ -177,44 +180,44 @@ export const updateHabit = (id, habitData) => async (dispatch) => {
     throw error;
   }
 };
-export const createNotification = (notificationData) => async (dispatch) => {
-  dispatch({ type: CREATE_NOTIFICATION_REQUEST });
+// export const createNotification = (notificationData) => async (dispatch) => {
+//   dispatch({ type: CREATE_NOTIFICATION_REQUEST });
 
-  try {
-    const token = localStorage.getItem("authToken");
-    const response = await fetch("https://gross-kerrie-hackaton-team1-79e26745.koyeb.app/notifications", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(notificationData),
-    });
+//   try {
+//     const token = localStorage.getItem("authToken");
+//     const response = await fetch("https://gross-kerrie-hackaton-team1-79e26745.koyeb.app/notifications", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${token}`,
+//       },
+//       body: JSON.stringify(notificationData),
+//     });
 
-    if (!response.ok) {
-      throw new Error("Failed to create notification");
-    }
+//     if (!response.ok) {
+//       throw new Error("Failed to create notification");
+//     }
 
-    const result = await response.json();
-    dispatch({ type: CREATE_NOTIFICATION_SUCCESS, payload: result });
-  } catch (error) {
-    dispatch({ type: CREATE_NOTIFICATION_FAILURE, payload: error.message });
-  }
-};
-export const fetchNotifications = () => async (dispatch) => {
-  dispatch({ type: FETCH_NOTIFICATIONS_REQUEST });
-  try {
-    const token = localStorage.getItem("authToken");
-    const response = await fetch("https://gross-kerrie-hackaton-team1-79e26745.koyeb.app/notifications?page=0&size=10&sortBy=id", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = await response.json();
-    dispatch({ type: FETCH_NOTIFICATIONS_SUCCESS, payload: data.content });
-  } catch (error) {
-    dispatch({ type: FETCH_NOTIFICATIONS_FAILURE, payload: error.message });
-  }
-};
+//     const result = await response.json();
+//     dispatch({ type: CREATE_NOTIFICATION_SUCCESS, payload: result });
+//   } catch (error) {
+//     dispatch({ type: CREATE_NOTIFICATION_FAILURE, payload: error.message });
+//   }
+// };
+// export const fetchNotifications = () => async (dispatch) => {
+//   dispatch({ type: FETCH_NOTIFICATIONS_REQUEST });
+//   try {
+//     const token = localStorage.getItem("authToken");
+//     const response = await fetch("https://gross-kerrie-hackaton-team1-79e26745.koyeb.app/notifications?page=0&size=10&sortBy=id", {
+//       method: "GET",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+//     const data = await response.json();
+//     dispatch({ type: FETCH_NOTIFICATIONS_SUCCESS, payload: data.content });
+//   } catch (error) {
+//     dispatch({ type: FETCH_NOTIFICATIONS_FAILURE, payload: error.message });
+//   }
+// };

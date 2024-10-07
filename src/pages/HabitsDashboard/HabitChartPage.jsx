@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { format, subDays, eachDayOfInterval, isSameDay } from "date-fns";
 import styles from "./HabitChartPage.module.css";
+import { useDispatch } from "react-redux";
+import { fetchCompletionHabit } from "../../redux/action/completion";
 
 const HabitChartPage = () => {
   const location = useLocation();
@@ -10,11 +12,13 @@ const HabitChartPage = () => {
   const { habits } = location.state || {};
   const [period, setPeriod] = useState("week");
   const [chartData, setChartData] = useState([]);
-
+  const dispatch = useDispatch();
   const handleGoBack = () => {
     navigate(-1);
   };
-
+  useEffect(() => {
+    dispatch(fetchCompletionHabit());
+  }, []);
   useEffect(() => {
     if (habits && habits.content.length > 0) {
       const today = new Date();
