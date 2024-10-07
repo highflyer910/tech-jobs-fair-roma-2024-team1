@@ -26,17 +26,13 @@ import { DeleteHabit, fetchProtectedResource, updateHabitCompletion } from "../.
 
 import CreateHabit from "./CreateHabit";
 import UpdateHabit from "./Updatehabit";
+import Calendar from "./Calendar";
 
 const HabitPage = () => {
   const [dates, setDates] = useState([]);
   const [tokenAvailable, setTokenAvailable] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [reminder, setReminder] = useState(false);
-
-  const [newHabitName, setNewHabitName] = useState("");
-
-  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const [habitsUpdate, setHabitsUpdate] = useState(false);
   const [selectedHabitId, setSelectedHabitId] = useState(null);
@@ -44,7 +40,7 @@ const HabitPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
-  const { allHabits, loading, success, error } = useSelector((state) => state.habits);
+  const { allHabits } = useSelector((state) => state.habits);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -71,6 +67,7 @@ const HabitPage = () => {
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // da rivedere
   const scheduleNotification = useCallback((habit) => {
     const now = new Date();
     let notificationTime;
@@ -120,16 +117,12 @@ const HabitPage = () => {
   };
   const handleCalendarToggle = () => setShowCalendar(!showCalendar);
 
-  const handleDateSelect = (item) => {
-    setSelectedDate(item.date);
-  };
-
   const toggleHabitCompletion = (id) => {
     dispatch(updateHabitCompletion(id));
   };
 
   const handleChartNavigation = () => {
-    navigate("/habit-chart", { state: { habits: allHabits } });
+    navigate("/habit-chart");
   };
 
   const handleDeleteHabit = (habitId) => {
@@ -193,11 +186,7 @@ const HabitPage = () => {
             <h2 className="mb-0 mx-2">Your habits</h2>
             <div className={`${styles.calendarStrip} d-flex justify-content-between mb-4 mt-4 p-2 rounded`}>
               {dates.map((item, index) => (
-                <div
-                  key={index}
-                  className={`${styles.calendarDay} text-center p-1 rounded ${item.isToday ? styles.today : ""}`}
-                  onClick={() => handleDateSelect(item)}
-                >
+                <div key={index} className={`${styles.calendarDay} text-center p-1 rounded ${item.isToday ? styles.today : ""}`}>
                   <div className={styles.dateNumber}>{item.date}</div>
                   <div className={styles.dayName}>{item.day}</div>
                 </div>
@@ -278,33 +267,7 @@ const HabitPage = () => {
         {/* modal create habit */}
         <CreateHabit showModal={showModal} handleModalToggle={handleModalToggle} setShowModal={setShowModal} styles={styles} />
         {/* calendar */}
-        {/* <Modal show={showCalendar} onHide={handleCalendarToggle} centered className={styles.calendarModal}>
-          <Modal.Header closeButton className={styles.calendarModalHeader}>
-            <Modal.Title>Habits Calendar</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className={styles.calendarModalBody}>
-            {localHabits.length > 0 && (
-              <Calendar
-                onChange={handleDateChange}
-                value={selectedDate}
-                className={styles.customCalendar}
-                tileClassName={({ date, view }) => {
-                  const calendarDate = new Date(date);
-                  const hasHabit = localHabits.some((habit) => new Date(habit.createdAt).toDateString() === calendarDate.toDateString());
-                  const hasReminder =
-                    Array.isArray(notifications) &&
-                    notifications.some((notification) => new Date(notification.scheduledAt).toDateString() === calendarDate.toDateString());
-
-                  const classNames = [];
-                  if (hasHabit) classNames.push(styles.hasHabit);
-                  if (hasReminder) classNames.push(styles.hasReminder);
-
-                  return classNames.join(" ") || null;
-                }}
-              />
-            )}
-          </Modal.Body>
-        </Modal> */}
+        <Calendar styles={styles} showCalendar={showCalendar} handleCalendarToggle={handleCalendarToggle} habit={allHabits} />
       </div>
       <ToastContainer />
     </div>
