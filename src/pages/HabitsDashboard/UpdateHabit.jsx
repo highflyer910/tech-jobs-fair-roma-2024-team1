@@ -11,6 +11,7 @@ const UpdateHabit = ({ styles, setSelectedHabitId, setHabitsUpdate, setIsLoading
     completed: habit.completed,
   });
   const { loading, content, success } = useSelector((state) => state.category);
+
   const dispatch = useDispatch();
   const handleSaveEdit = (habitId) => {
     setIsLoading(true);
@@ -21,48 +22,80 @@ const UpdateHabit = ({ styles, setSelectedHabitId, setHabitsUpdate, setIsLoading
       })
       .catch(() => {
         setIsLoading(false);
-        toast.error("Failed to update habit. Please try again.");
       });
   };
   return (
     <>
       <div className={`${styles.editMode} flex-column `}>
-        <input
-          type="text"
-          value={editedHabit.name}
-          onChange={(e) => setEditedHabit({ ...editedHabit, name: e.target.value })}
-          className={styles.editInput}
-          placeholder="Habit name"
-        />
+        <div className="d-flex align-items-center flex-column flex-md-row">
+          <div className="d-flex flex-column mx-3">
+            <label htmlFor="habitCategory" className="m-0">
+              Category
+            </label>
+            <select
+              id="habitCategory"
+              value={editedHabit.category}
+              onChange={(e) => setEditedHabit({ ...editedHabit, category: e.target.value })}
+              className={`${styles.inputField} `}
+            >
+              <option value="">Select a category</option>
+              {content &&
+                content.map((category) => (
+                  <option key={category.id} value={category.name}>
+                    {category.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+          <div className="d-flex flex-column">
+            <label htmlFor="Habit name">Habit name</label>
+            <input
+              type="text"
+              value={editedHabit.name}
+              onChange={(e) => setEditedHabit({ ...editedHabit, name: e.target.value })}
+              className={styles.editInput}
+              placeholder="Habit name"
+              id="Habit name"
+            />
+          </div>
+        </div>
+        <div className="d-flex align-items-center flex-column flex-md-row">
+          <div className="d-flex flex-column mx-3">
+            <label htmlFor="habitFrequency">Frequency</label>
+            <select
+              id="habitFrequency"
+              value={editedHabit.frequency}
+              onChange={(e) => setEditedHabit({ ...editedHabit, frequency: e.target.value })}
+              className={`${styles.inputField} `}
+            >
+              <option value="">Select a frequency</option>
+              <option value="everyday">Every day</option>
+              <option value="every3days">Every 3 Days</option>
+              <option value="onceaweek">Once a Week</option>
+              <option value="onceamonth">Once a Month</option>
+            </select>
+          </div>
+          <div className={`${styles.customCheckbox} d-flex  mx-3`}>
+            <input
+              id="habitReminder"
+              checked={editedHabit.reminder}
+              onChange={(e) => setEditedHabit({ ...editedHabit, reminder: e.target.checked })}
+              type="checkbox"
+            />
+            <label htmlFor="habitReminder">Reminder</label>
+          </div>
+          <div className={`${styles.customCheckbox} d-flex  mx-3`}>
+            <input
+              id="habitCompleted"
+              checked={editedHabit.completed}
+              onChange={(e) => setEditedHabit({ ...editedHabit, completed: e.target.checked })}
+              type="checkbox"
+            />
+            <label htmlFor="habitCompleted">Completed</label>
+          </div>
+        </div>
 
-        <select
-          id="habitFrequency"
-          value={editedHabit.frequency}
-          onChange={(e) => setEditedHabit({ ...editedHabit, frequency: e.target.value })}
-          className={`${styles.inputField} my-3 `}
-        >
-          <option value="">Select a frequency</option>
-          <option value="everyday">Every day</option>
-          <option value="every3days">Every 3 Days</option>
-          <option value="onceaweek">Once a Week</option>
-          <option value="onceamonth">Once a Month</option>
-        </select>
-        <select
-          id="habitCategory"
-          value={editedHabit.category}
-          onChange={(e) => setEditedHabit({ ...editedHabit, category: e.target.value })}
-          className={`${styles.inputField} my-3 `}
-        >
-          <option value="">Select a category</option>
-          {content &&
-            content.map((category) => (
-              <option key={category.id} value={category.name}>
-                {category.name}
-              </option>
-            ))}
-        </select>
-
-        <div className={styles.editButtons}>
+        <div className={`${styles.editButtons} my-3`}>
           <button onClick={() => handleSaveEdit(habit.id)} className={styles.saveButton}>
             Save
           </button>
