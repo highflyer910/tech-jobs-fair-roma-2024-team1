@@ -331,8 +331,15 @@ h2 {
 
 .hasHabit {
   background-color: #353477 !important;
+  color: white;
 }
+
 .hasReminder {
+  background-color: #4c4b8a !important;
+  color: white;
+}
+
+.outsideMonth {
   background-color: #4c4b8a !important;
 }
 .time-picker-portal .react-time-picker__wrapper {

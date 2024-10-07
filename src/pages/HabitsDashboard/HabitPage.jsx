@@ -26,14 +26,15 @@ import { DeleteHabit, fetchProtectedResource, updateHabitCompletion } from "../.
 
 import CreateHabit from "./CreateHabit";
 import UpdateHabit from "./Updatehabit";
-import Calendar from "./Calendar";
+
+import CalendarModal from "./CalendarModal";
 
 const HabitPage = () => {
   const [dates, setDates] = useState([]);
   const [tokenAvailable, setTokenAvailable] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
-
+  const [newHabitName, setNewHabitName] = useState("");
   const [habitsUpdate, setHabitsUpdate] = useState(false);
   const [selectedHabitId, setSelectedHabitId] = useState(null);
   const [localHabits, setLocalHabits] = useState([]);
@@ -267,7 +268,7 @@ const HabitPage = () => {
         {/* modal create habit */}
         <CreateHabit showModal={showModal} handleModalToggle={handleModalToggle} setShowModal={setShowModal} styles={styles} />
         {/* calendar */}
-        <Calendar styles={styles} showCalendar={showCalendar} handleCalendarToggle={handleCalendarToggle} habit={allHabits} />
+        <CalendarModal showCalendar={showCalendar} handleCalendarToggle={handleCalendarToggle} />
       </div>
       <ToastContainer />
     </div>

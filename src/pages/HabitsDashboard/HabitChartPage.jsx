@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { format, subDays, eachDayOfInterval, isSameDay } from "date-fns";
 import styles from "./HabitChartPage.module.css";
@@ -22,7 +22,7 @@ const HabitChartPage = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (success && content.content && content.content.length > 0) {
+    if (success && content && content.content && content.content.length > 0) {
       const today = new Date();
       const startDate = period === "week" ? subDays(today, 6) : subDays(today, 29);
       const dates = eachDayOfInterval({ start: startDate, end: today });
@@ -51,7 +51,7 @@ const HabitChartPage = () => {
 
       setChartData(data);
     }
-  }, [content.content, period, success]);
+  }, [period, success, content]);
 
   if (loading) {
     return <div className={styles.loading}>Loading...</div>; // Loading state
@@ -68,7 +68,7 @@ const HabitChartPage = () => {
     );
   }
 
-  if (!content.content || content.content.length === 0) {
+  if (!content || !content.content || content.content.length === 0) {
     return (
       <div className={styles.habitChartPage}>
         <button className={styles.goBackButton} onClick={handleGoBack}>
