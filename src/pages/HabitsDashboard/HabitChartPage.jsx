@@ -3,58 +3,72 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { format, subDays, eachDayOfInterval, isSameDay } from "date-fns";
 import styles from "./HabitChartPage.module.css";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchCompletionHabit } from "../../redux/action/completion";
 
 const HabitChartPage = () => {
-  const location = useLocation();
+  const { content, loading, success, error } = useSelector((state) => state.completion);
   const navigate = useNavigate();
-  const { habits } = location.state || {};
   const [period, setPeriod] = useState("week");
   const [chartData, setChartData] = useState([]);
   const dispatch = useDispatch();
+
   const handleGoBack = () => {
     navigate(-1);
   };
+
   useEffect(() => {
     dispatch(fetchCompletionHabit());
-  }, []);
+  }, [dispatch]);
+
   useEffect(() => {
-    if (habits && habits.content.length > 0) {
+    if (success && content.content && content.content.length > 0) {
       const today = new Date();
       const startDate = period === "week" ? subDays(today, 6) : subDays(today, 29);
-
       const dates = eachDayOfInterval({ start: startDate, end: today });
 
-      const totalHabits = habits.content.length;
+      const totalHabits = content.content.length; // Ensure this points to the correct structure
 
       const data = dates.map((date) => {
         const dateString = format(date, "yyyy-MM-dd");
         let dailyCompleted = 0;
 
-        // Calcola il numero di abitudini completate per ogni giorno
-        habits.content.forEach((habit) => {
-          const habitUpdatedDate = new Date(habit.updatedAt);
-          const isCompleted = habit.completed && isSameDay(habitUpdatedDate, date);
+        content.content.forEach((habit) => {
+          const habitUpdatedDate = new Date(habit.completedAt);
+          const isCompleted = habit.habit.completed && isSameDay(habitUpdatedDate, date);
           if (isCompleted) {
             dailyCompleted += 1;
           }
         });
 
-        // Calcola la percentuale di abitudini completate
         const completionRate = totalHabits > 0 ? (dailyCompleted / totalHabits) * 100 : 0;
 
         return {
           date: dateString,
-          completionRate, // Percentuale di abitudini completate
+          completionRate,
         };
       });
 
       setChartData(data);
     }
-  }, [habits, period]);
+  }, [content.content, period, success]);
 
-  if (!habits || habits.content.length === 0) {
+  if (loading) {
+    return <div className={styles.loading}>Loading...</div>; // Loading state
+  }
+
+  if (error) {
+    return (
+      <div className={styles.habitChartPage}>
+        <button className={styles.goBackButton} onClick={handleGoBack}>
+          Back
+        </button>
+        <p className={styles.errorMessage}>{error}</p> {/* Display error message */}
+      </div>
+    );
+  }
+
+  if (!content.content || content.content.length === 0) {
     return (
       <div className={styles.habitChartPage}>
         <button className={styles.goBackButton} onClick={handleGoBack}>
@@ -78,10 +92,11 @@ const HabitChartPage = () => {
 
             <h2 className={styles.sectionTitle}>Your Habits:</h2>
             <ul className={styles.habitList}>
-              {habits.content.map((habit, index) => (
+              {content.content.map((habit, index) => (
                 <li key={index} className={styles.habitItem}>
-                  <span className={styles.habitName}>{habit.name}</span>
-                  <span className={styles.habitFrequency}>Frequency: {habit.frequency || "N/A"}</span>
+                  <span className={styles.habitName}>{habit.habit.name}</span>
+                  <span className={styles.habitFrequency}>Frequency: {habit.habit.frequency || "N/A"}</span>
+                  <span className={styles.habitFrequency}>Category: {habit.habit.category.name}</span>
                 </li>
               ))}
             </ul>
