@@ -135,13 +135,16 @@ const HabitPage = () => {
     setSelectedHabitId(habit.id);
   };
   // filtra habit per la settimana corrente
-  const filterHabitsForCurrentWeek = () => {
+  const filterAndGroupHabitsByCategory = () => {
+    // 1. Filtro per le abitudini della settimana corrente
     const currentDate = new Date();
-    const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
-    const endOfWeek = new Date(currentDate.setDate(startOfWeek.getDate() + 6));
+    const startOfWeek = new Date(currentDate);
+    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
 
-    return localHabits.filter((habit) => {
-      // Controlla se almeno una delle frequencyDates rientra nella settimana corrente
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    const filteredHabits = localHabits.filter((habit) => {
       const hasFrequencyDates = habit.frequencyDates.length > 0;
 
       return hasFrequencyDates
@@ -149,13 +152,25 @@ const HabitPage = () => {
             const habitDate = new Date(date);
             return habitDate >= startOfWeek && habitDate <= endOfWeek;
           })
-        : true; // Include le abitudini con frequencyDates vuoto
+        : true; // Include le abitudini senza frequencyDates
     });
+
+    // 2. Raggruppamento per categoria
+    const habitsByCategory = filteredHabits.reduce((acc, habit) => {
+      const category = habit.category && habit.category.name ? habit.category.name : "Uncategorized";
+
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(habit);
+      return acc;
+    }, {});
+
+    return habitsByCategory;
   };
 
-  const currentWeekHabits = filterHabitsForCurrentWeek();
+  const habitsByCategory = filterAndGroupHabitsByCategory();
 
   useEffect(() => {
+    console.log(localHabits);
     getCalendarDates();
   }, []);
 
@@ -167,9 +182,7 @@ const HabitPage = () => {
             <img src="/habit.svg" alt="Habit Icon" />
           </div>
         </div>
-
         <h1 className={`${styles.pageTitle} text-center mb-4`}>Set your goals</h1>
-
         <div className="d-flex justify-content-end mb-3">
           <button onClick={handleModalToggle} className={`${styles.btnCircle} me-4`}>
             <FaPlus />
@@ -181,7 +194,6 @@ const HabitPage = () => {
             <FaCalendarAlt />
           </button>
         </div>
-
         <div className="row">
           <div className="col-12 d-flex justify-content-between align-items-center">
             <h2 className="mb-0 mx-2">Your habits</h2>
@@ -199,19 +211,10 @@ const HabitPage = () => {
           <div className={styles.loadingOverlay}>
             <div className={styles.spinner}></div>
           </div>
-        ) : localHabits.length > 0 ? (
-          //  Raggruppiamo le abitudini per categoria
-          Object.entries(
-            [...new Map(localHabits.map((habit) => [habit.id, habit])).values()].reduce((acc, habit) => {
-              const category = habit.category && habit.category.name ? habit.category.name : "Uncategorized";
-
-              if (!acc[category]) acc[category] = [];
-              acc[category].push(habit);
-              return acc;
-            }, {})
-          ).map(([category]) => (
+        ) : Object.keys(habitsByCategory).length > 0 ? (
+          Object.entries(habitsByCategory).map(([category, habits]) => (
             <div key={category} className={`${styles.categoryGroup}`}>
-              {/*  Icona in base alla categoria */}
+              {/* Icona in base alla categoria */}
               <div className="d-flex align-items-center">
                 {category === "Health" && <FaHeartbeat size={24} />}
                 {category === "Work" && <FaBriefcase size={24} />}
@@ -221,9 +224,9 @@ const HabitPage = () => {
                 <h3 className="m-0 d-flex align-items-center mx-3">{category}</h3>
               </div>
 
-              {/* Mappiamo le abitudini all'interno di ogni categoria in base alla settimana */}
-              {currentWeekHabits.length > 0 &&
-                currentWeekHabits.map((habit) => (
+              {/* Mappa le abitudini all'interno della categoria */}
+              {habits.length > 0 &&
+                habits.map((habit) => (
                   <div key={habit.id} className={`${styles.habitRow}`}>
                     <div className={`${styles.habitName} flex-column flex-md-row my-3`}>
                       {habitsUpdate && selectedHabitId === habit.id ? (
@@ -263,6 +266,7 @@ const HabitPage = () => {
             <div className={`${styles.bigCircle} d-flex align-items-center justify-content-center text-center mt-4 p-3`}>You have no active habits</div>
           </div>
         )}
+
         {/* 
       
         {/* modal create habit */}
