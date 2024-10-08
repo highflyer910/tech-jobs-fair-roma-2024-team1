@@ -18,6 +18,7 @@ import {
   FaBrain,
   FaDumbbell,
   FaBook,
+  FaShareAlt,
 } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -28,18 +29,19 @@ import CreateHabit from "./CreateHabit";
 import UpdateHabit from "./Updatehabit";
 
 import CalendarModal from "./CalendarModal";
+import ShareHabit from "./ShareHabit";
 
 const HabitPage = () => {
   const [dates, setDates] = useState([]);
   const [tokenAvailable, setTokenAvailable] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [newHabitName, setNewHabitName] = useState("");
+
   const [habitsUpdate, setHabitsUpdate] = useState(false);
   const [selectedHabitId, setSelectedHabitId] = useState(null);
   const [localHabits, setLocalHabits] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [shareHabitShow, setShareHabitShow] = useState(false);
   const dispatch = useDispatch();
   const { allHabits } = useSelector((state) => state.habits);
   const navigate = useNavigate();
@@ -113,8 +115,10 @@ const HabitPage = () => {
 
   const handleModalToggle = () => {
     setShowModal(!showModal);
-    setNewHabitName("");
-    setReminder(false);
+  };
+  const handleShareHabitModalToggle = (habitId) => {
+    setShareHabitShow(!shareHabitShow);
+    setSelectedHabitId(habitId);
   };
   const handleCalendarToggle = () => setShowCalendar(!showCalendar);
 
@@ -240,6 +244,9 @@ const HabitPage = () => {
                         <>
                           <h4>{habit.name}</h4>
                           <div className={`${styles.habitActions} d-flex align-items-center`}>
+                            <button className={`${styles.habitActionBtn} ms-2`} onClick={() => handleShareHabitModalToggle(habit.id)} aria-label="Share habit">
+                              <FaShareAlt />
+                            </button>
                             <button
                               className={`${styles.habitActionBtn} ms-2 ${habit.completed ? styles.completed : styles.notCompleted}`}
                               onClick={() => toggleHabitCompletion(habit.id)}
@@ -272,6 +279,14 @@ const HabitPage = () => {
         <CreateHabit showModal={showModal} handleModalToggle={handleModalToggle} setShowModal={setShowModal} styles={styles} />
         {/* calendar */}
         <CalendarModal showCalendar={showCalendar} handleCalendarToggle={handleCalendarToggle} allHabit={allHabits} />
+        {/* share habit */}
+        <ShareHabit
+          shareHabitShow={shareHabitShow}
+          handleShareHabitModalToggle={handleShareHabitModalToggle}
+          setShareHabitShow={setShareHabitShow}
+          styles={styles}
+          selectedHabitId={selectedHabitId}
+        />
       </div>
       <ToastContainer />
     </div>

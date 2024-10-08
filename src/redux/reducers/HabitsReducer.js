@@ -10,6 +10,7 @@ import {
   UPDATE_HABIT_REQUEST,
   UPDATE_HABIT_SUCCESS,
 } from "../action/habit";
+import { ADD_USER_FAILURE, ADD_USER_REQUEST, ADD_USER_SUCCESS } from "../action/share";
 
 const initialState = {
   loading: false,
@@ -50,6 +51,12 @@ const HabitsReducer = (state = initialState, action) => {
         loading: true,
         error: null,
       };
+    case ADD_USER_REQUEST:
+      return { ...state, loading: true };
+    case ADD_USER_SUCCESS:
+      return { ...state, loading: false, success: true, content: action.payload, errorMsg: null, error: false };
+    case ADD_USER_FAILURE:
+      return { ...state, loading: false, errorMsg: action.payload, success: false, error: true };
     // case CREATE_NOTIFICATION_SUCCESS:
     //   return {
     //     ...state,
