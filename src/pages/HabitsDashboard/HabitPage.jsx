@@ -170,7 +170,6 @@ const HabitPage = () => {
   const habitsByCategory = filterAndGroupHabitsByCategory();
 
   useEffect(() => {
-    console.log(localHabits);
     getCalendarDates();
   }, []);
 
@@ -272,7 +271,7 @@ const HabitPage = () => {
         {/* modal create habit */}
         <CreateHabit showModal={showModal} handleModalToggle={handleModalToggle} setShowModal={setShowModal} styles={styles} />
         {/* calendar */}
-        <CalendarModal showCalendar={showCalendar} handleCalendarToggle={handleCalendarToggle} />
+        <CalendarModal showCalendar={showCalendar} handleCalendarToggle={handleCalendarToggle} allHabit={allHabits} />
       </div>
       <ToastContainer />
     </div>

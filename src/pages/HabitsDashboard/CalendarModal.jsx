@@ -1,17 +1,18 @@
 import { Modal } from "react-bootstrap";
 import styles from "../HabitsDashboard/HabitPage.module.css";
-import { useSelector } from "react-redux";
+
 import { useEffect, useState } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 const localizer = momentLocalizer(moment);
-const CalendarModal = ({ showCalendar, handleCalendarToggle }) => {
-  const { habit } = useSelector((state) => state.habits);
+const CalendarModal = ({ showCalendar, handleCalendarToggle, allHabit }) => {
   const [events, setEvents] = useState([]);
+
   useEffect(() => {
-    if (habit && habit.content.length > 0) {
-      const newEvents = habit.content.flatMap((habitItem) => {
+    console.log(allHabit);
+    if (allHabit && allHabit.content && allHabit.content.length > 0) {
+      const newEvents = allHabit.content.flatMap((habitItem) => {
         const hasFrequencyDates = habitItem.frequencyDates && habitItem.frequencyDates.length > 0;
 
         if (hasFrequencyDates) {
@@ -20,7 +21,7 @@ const CalendarModal = ({ showCalendar, handleCalendarToggle }) => {
             const parsedDate = moment(date).toDate(); // Converte in oggetto Date
 
             return {
-              title: habitItem.habit.name,
+              title: habitItem.name,
               start: parsedDate,
               end: parsedDate,
               allDay: true,
@@ -31,7 +32,7 @@ const CalendarModal = ({ showCalendar, handleCalendarToggle }) => {
           const createdAtDate = moment(habitItem.createdAt).toDate(); // Converte LocalDateTime a Date
 
           return {
-            title: habitItem.habit.name,
+            title: habitItem.name,
             start: createdAtDate,
             end: createdAtDate,
             allDay: true,
@@ -41,7 +42,7 @@ const CalendarModal = ({ showCalendar, handleCalendarToggle }) => {
       });
       setEvents(newEvents);
     }
-  }, [habit]);
+  }, [allHabit]);
 
   // Stile personalizzato per gli eventi con classi dinamiche
   const eventStyleGetter = (event) => {

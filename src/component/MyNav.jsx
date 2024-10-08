@@ -40,12 +40,11 @@ const MyNav = () => {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          console.log("Aggiunto con successo al db", data);
         } catch (error) {
           console.error("Error fetching users:", error);
         }
       };
-      console.log(userData);
+
       fetchUsers();
     }
   }, [userData]);
