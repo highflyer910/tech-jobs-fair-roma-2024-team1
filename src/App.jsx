@@ -7,6 +7,7 @@ import SignInPage from "./pages/SignIn/SignInPage";
 import MyNav from "./component/MyNav";
 import HabitChartPage from "./pages/HabitsDashboard/HabitChartPage";
 import HabitPage from "./pages/HabitsDashboard/HabitPage";
+import Notifications from "./pages/HabitsDashboard/Notifications";
 
 function ProtectedRoute({ children }) {
   const { isSignedIn, isLoaded } = useAuth();
@@ -53,6 +54,7 @@ function App() {
         />
         <Route path="/signUp" element={<SignUpPage />} />
         <Route path="/signIn" element={<SignInPage />} />
+        <Route path="/notification" element={<Notifications />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
