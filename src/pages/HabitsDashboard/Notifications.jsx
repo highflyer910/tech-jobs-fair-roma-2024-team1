@@ -1,32 +1,43 @@
 import { useEffect, useState } from "react";
+import { GetNotifications } from "../../redux/action/notification";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const socket = new WebSocket("https://unsightly-maurise-marinalucentini-fc955053.koyeb.app/ws-notifications"); // Modifica l'URL se necessario
-
-    socket.onopen = () => {
-      console.log("WebSocket connected");
-      // Puoi inviare un messaggio di benvenuto o altre informazioni
-      socket.send(JSON.stringify({ type: "greeting", content: "Hello!" }));
+    const fetchNotifications = async () => {
+      try {
+        const data = await GetNotifications();
+        setNotifications(data.content); // Adatta secondo la struttura della tua risposta
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    socket.onmessage = (event) => {
-      const notification = JSON.parse(event.data);
-      console.log("Received notification: ", notification);
-    };
-
-    socket.onclose = () => {
-      console.log("WebSocket disconnected");
-    };
-
-    return () => {
-      socket.close(); // Chiudi la connessione WebSocket al termine del componente
-    };
+    fetchNotifications();
   }, []);
 
-  return <div>My Component</div>;
+  if (loading) return <p>Caricamento notifiche...</p>;
+  if (error) return <p style={{ color: "red" }}>Errore: {error}</p>;
+
+  return (
+    <div>
+      <h3>Notifications</h3>
+      {notifications.length === 0 ? (
+        <p>Nessuna notifica disponibile.</p>
+      ) : (
+        <ul>
+          {notifications.map((notification, index) => (
+            <li key={index}>{notification.message}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 };
 
 export default Notifications;

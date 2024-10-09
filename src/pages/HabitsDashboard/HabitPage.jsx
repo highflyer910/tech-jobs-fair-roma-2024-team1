@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
-
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 import "react-calendar/dist/Calendar.css";
-import "react-time-picker/dist/TimePicker.css";
+
 import styles from "./HabitPage.module.css";
 import {
   FaPlus,
@@ -20,7 +18,7 @@ import {
   FaBook,
   FaShareAlt,
 } from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
 import { DeleteHabit, fetchProtectedResource, updateHabitCompletion } from "../../redux/action/habit";
@@ -30,6 +28,7 @@ import UpdateHabit from "./Updatehabit";
 
 import CalendarModal from "./CalendarModal";
 import ShareHabit from "./ShareHabit";
+import Notifications from "./Notifications";
 
 const HabitPage = () => {
   const [dates, setDates] = useState([]);
@@ -42,9 +41,11 @@ const HabitPage = () => {
   const [localHabits, setLocalHabits] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [shareHabitShow, setShareHabitShow] = useState(false);
+
   const dispatch = useDispatch();
-  const { allHabits } = useSelector((state) => state.habits);
   const navigate = useNavigate();
+
+  const { allHabits } = useSelector((state) => state.habits);
 
   useEffect(() => {
     if (allHabits && allHabits.content) {
@@ -72,44 +73,13 @@ const HabitPage = () => {
     setDates(dateArray); // Salva le date nel tuo stato
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  // da rivedere
-  const scheduleNotification = useCallback((habit) => {
-    const now = new Date();
-    let notificationTime;
-
-    if (habit.frequency === "everyday") {
-      notificationTime = new Date(now.setHours(habit.reminderTime.split(":")[0], habit.reminderTime.split(":")[1], 0, 0));
-      if (notificationTime <= now) {
-        notificationTime.setDate(notificationTime.getDate() + 1);
-      }
-    } else if (habit.frequency === "every3days") {
-      notificationTime = new Date(now.setDate(now.getDate() + 3));
-      notificationTime.setHours(habit.reminderTime.split(":")[0], habit.reminderTime.split(":")[1], 0, 0);
-    } else if (habit.frequency === "onceaweek") {
-      notificationTime = new Date(now.setDate(now.getDate() + 7));
-      notificationTime.setHours(habit.reminderTime.split(":")[0], habit.reminderTime.split(":")[1], 0, 0);
-    } else if (habit.reminderDate) {
-      notificationTime = new Date(habit.reminderDate);
-      notificationTime.setHours(habit.reminderTime.split(":")[0], habit.reminderTime.split(":")[1], 0, 0);
-    }
-
-    if (notificationTime && notificationTime > now) {
-      const timeUntilNotification = notificationTime.getTime() - now.getTime();
-      setTimeout(() => {
-        toast.info(`Reminder: It's time for your habit "${habit.name}"!`);
-        if (habit.frequency !== "none") {
-          scheduleNotification(habit);
-        }
-      }, timeUntilNotification);
-    }
-  });
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) {
       setTokenAvailable(true);
     }
   }, []);
+
   useEffect(() => {
     if (tokenAvailable) {
       dispatch(fetchProtectedResource());
@@ -141,7 +111,8 @@ const HabitPage = () => {
     setHabitsUpdate(true);
     setSelectedHabitId(habit.id);
   };
-  // filtra habit per la settimana corrente
+
+  // Filtra le abitudini per la settimana corrente
   const filterAndGroupHabitsByCategory = () => {
     if (!dates || dates.length === 0) return {}; // Assicurati che `dates` sia disponibile e restituisci un oggetto vuoto
 
@@ -205,6 +176,7 @@ const HabitPage = () => {
           </div>
         </div>
         <h1 className={`${styles.pageTitle} text-center mb-4`}>Set your goals</h1>
+
         <div className="d-flex justify-content-end mb-3">
           <button onClick={handleModalToggle} className={`${styles.btnCircle} me-4`}>
             <FaPlus />
@@ -307,7 +279,7 @@ const HabitPage = () => {
           selectedHabitId={selectedHabitId}
         />
       </div>
-      <ToastContainer />
+      <Notifications />
     </div>
   );
 };
