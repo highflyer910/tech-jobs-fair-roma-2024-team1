@@ -55,18 +55,21 @@ const HabitPage = () => {
   const getCalendarDates = () => {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const dateArray = [];
-    const today = new Date();
+    const today = new Date(); // Prendi la data di oggi
 
+    // Genera le date a partire da oggi per 7 giorni
     for (let i = 0; i < 7; i++) {
       const date = new Date(today);
-      date.setDate(today.getDate() - i);
+      date.setDate(today.getDate() + i); // Avanza di un giorno per ciascun ciclo
       dateArray.push({
         day: days[date.getDay()],
         date: date.getDate(),
-        isToday: i === 0,
+        fullDate: date, // Aggiungi la data completa per i confronti futuri
+        isToday: i === 0, // Imposta true per oggi
       });
     }
-    setDates(dateArray);
+
+    setDates(dateArray); // Salva le date nel tuo stato
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -140,35 +143,51 @@ const HabitPage = () => {
   };
   // filtra habit per la settimana corrente
   const filterAndGroupHabitsByCategory = () => {
-    // 1. Filtro per le abitudini della settimana corrente
-    const currentDate = new Date();
-    const startOfWeek = new Date(currentDate);
-    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+    if (!dates || dates.length === 0) return {}; // Assicurati che `dates` sia disponibile e restituisci un oggetto vuoto
 
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-
+    // 1. Filtrare le abitudini per la settimana corrente
     const filteredHabits = localHabits.filter((habit) => {
-      const hasFrequencyDates = habit.frequencyDates.length > 0;
+      const hasFrequencyDates = habit.frequencyDates && habit.frequencyDates.length > 0;
 
       return hasFrequencyDates
         ? habit.frequencyDates.some((date) => {
-            const habitDate = new Date(date);
-            return habitDate >= startOfWeek && habitDate <= endOfWeek;
+            // Il backend restituisce la data come stringa LocalDateTime (es. '2024-10-08T21:11:53.179828')
+            const habitDate = new Date(date.split("T")[0]); // Prende solo la parte di data (AAAA-MM-GG)
+
+            // Verifica se habitDate è valida
+            if (isNaN(habitDate)) {
+              console.error("Invalid date found in habit frequencyDates", date);
+              return false; // Ignora le date non valide
+            }
+
+            // Confronta le parti di data senza considerare l'ora
+            return dates.some((calendarDate) => {
+              if (!calendarDate.fullDate || isNaN(calendarDate.fullDate)) {
+                console.error("Invalid calendarDate found", calendarDate);
+                return false;
+              }
+
+              return (
+                habitDate.getFullYear() === calendarDate.fullDate.getFullYear() &&
+                habitDate.getMonth() === calendarDate.fullDate.getMonth() &&
+                habitDate.getDate() === calendarDate.fullDate.getDate()
+              );
+            });
           })
-        : true; // Include le abitudini senza frequencyDates
+        : true; // Includi abitudini senza frequencyDates
     });
 
-    // 2. Raggruppamento per categoria
+    // 2. Raggruppare le abitudini filtrate per categoria
     const habitsByCategory = filteredHabits.reduce((acc, habit) => {
+      // Controlla se l'abitudine ha una categoria e usa "Uncategorized" se manca
       const category = habit.category && habit.category.name ? habit.category.name : "Uncategorized";
 
-      if (!acc[category]) acc[category] = [];
-      acc[category].push(habit);
+      if (!acc[category]) acc[category] = []; // Inizializza la categoria se non esiste
+      acc[category].push(habit); // Aggiungi l'abitudine alla categoria corrispondente
       return acc;
-    }, {});
+    }, {}); // Oggetto vuoto iniziale per il raggruppamento
 
-    return habitsByCategory;
+    return habitsByCategory; // Restituisce le abitudini raggruppate per categoria
   };
 
   const habitsByCategory = filterAndGroupHabitsByCategory();

@@ -10,24 +10,25 @@ const CalendarModal = ({ showCalendar, handleCalendarToggle, allHabit }) => {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    console.log(allHabit);
     if (allHabit && allHabit.content && allHabit.content.length > 0) {
       const newEvents = allHabit.content.flatMap((habitItem) => {
         const hasFrequencyDates = habitItem.frequencyDates && habitItem.frequencyDates.length > 0;
 
         if (hasFrequencyDates) {
-          return habitItem.frequencyDates.map((date) => {
-            // Usa moment.js per convertire LocalDateTime in Date
-            const parsedDate = moment(date).toDate(); // Converte in oggetto Date
+          // Estrai le date e convertili in oggetti Date
+          const parsedDates = habitItem.frequencyDates.map((date) => moment(date).toDate());
 
-            return {
-              title: habitItem.name,
-              start: parsedDate,
-              end: parsedDate,
-              allDay: true,
-              type: "hasHabit", // Tipo per identificare gli eventi
-            };
-          });
+          // Ottieni la prima e l'ultima data
+          const startDate = moment(parsedDates[0]);
+          const endDate = moment(parsedDates[parsedDates.length - 1]);
+
+          return {
+            title: habitItem.name,
+            start: startDate.toDate(), // Prima data
+            end: endDate.toDate(), // Ultima data
+            allDay: true,
+            type: "hasHabit", // Tipo per identificare gli eventi
+          };
         } else {
           const createdAtDate = moment(habitItem.createdAt).toDate(); // Converte LocalDateTime a Date
 
@@ -40,16 +41,29 @@ const CalendarModal = ({ showCalendar, handleCalendarToggle, allHabit }) => {
           };
         }
       });
-      setEvents(newEvents);
+
+      // Unire eventi con lo stesso titolo
+      const mergedEvents = newEvents.reduce((acc, current) => {
+        const existingEvent = acc.find((event) => event.title === current.title && moment(event.start).isSame(current.start, "day"));
+
+        if (existingEvent) {
+          // Se l'evento esiste già, non fare nulla
+          return acc;
+        }
+
+        // Aggiungi l'evento se non esiste
+        acc.push(current);
+        return acc;
+      }, []);
+
+      setEvents(mergedEvents);
     }
   }, [allHabit]);
 
   // Stile personalizzato per gli eventi con classi dinamiche
   const eventStyleGetter = (event) => {
-    const className = event.type === "hasHabit" ? styles.hasHabit : styles.hasReminder;
-
     return {
-      className,
+      className: styles.hasHabit, // Applica uno stile unico per gli eventi
     };
   };
 

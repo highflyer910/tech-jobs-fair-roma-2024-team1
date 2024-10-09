@@ -5,9 +5,11 @@ import { format, subDays, eachDayOfInterval, isSameDay } from "date-fns";
 import styles from "./HabitChartPage.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCompletionHabit } from "../../redux/action/completion";
+import { fetchProtectedResource } from "../../redux/action/habit";
 
 const HabitChartPage = () => {
   const { content, loading, success, error } = useSelector((state) => state.completion);
+  const { allHabits } = useSelector((state) => state.habits);
   const navigate = useNavigate();
   const [period, setPeriod] = useState("week");
   const [chartData, setChartData] = useState([]);
@@ -20,6 +22,9 @@ const HabitChartPage = () => {
   useEffect(() => {
     dispatch(fetchCompletionHabit());
   }, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchProtectedResource());
+  });
 
   useEffect(() => {
     if (success && content && content.content && content.content.length > 0) {
@@ -27,16 +32,17 @@ const HabitChartPage = () => {
       const startDate = period === "week" ? subDays(today, 6) : subDays(today, 29);
       const dates = eachDayOfInterval({ start: startDate, end: today });
 
-      const totalHabits = content.content.length; // Ensure this points to the correct structure
+      const totalHabits = allHabits.content.length;
 
       const data = dates.map((date) => {
         const dateString = format(date, "yyyy-MM-dd");
         let dailyCompleted = 0;
 
         content.content.forEach((habit) => {
-          const habitUpdatedDate = new Date(habit.completedAt);
-          const isCompleted = habit.habit.completed && isSameDay(habitUpdatedDate, date);
-          if (isCompleted) {
+          // Ensure that the completedAt date is parsed correctly
+          const habitCompletedAt = habit.completedAt ? new Date(habit.completedAt) : null;
+
+          if (habitCompletedAt && isSameDay(habitCompletedAt, date)) {
             dailyCompleted += 1;
           }
         });
@@ -51,7 +57,7 @@ const HabitChartPage = () => {
 
       setChartData(data);
     }
-  }, [period, success, content]);
+  }, [period, success, content, allHabits]);
 
   if (loading) {
     return <div className={styles.loading}>Loading...</div>; // Loading state
