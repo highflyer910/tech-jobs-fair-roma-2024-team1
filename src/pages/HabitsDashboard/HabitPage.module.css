@@ -464,7 +464,7 @@ h2 {
   font-size: 0.8rem;
   transition: all 0.3s ease;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-  padding: 0; /* Remove any default padding */
+  padding: 0;
 }
 
 .habitActionBtn:hover {

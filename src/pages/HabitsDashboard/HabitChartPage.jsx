@@ -13,6 +13,7 @@ const HabitChartPage = () => {
   const navigate = useNavigate();
   const [period, setPeriod] = useState("week");
   const [chartData, setChartData] = useState([]);
+  const [activeHabits, setActiveHabits] = useState([]);
   const dispatch = useDispatch();
 
   const handleGoBack = () => {
@@ -21,33 +22,38 @@ const HabitChartPage = () => {
 
   useEffect(() => {
     dispatch(fetchCompletionHabit());
-  }, [dispatch]);
-  useEffect(() => {
     dispatch(fetchProtectedResource());
-  });
+  }, [dispatch]);
 
   useEffect(() => {
-    if (allHabits && success && content && content.content && content.content.length > 0) {
+    if (allHabits && allHabits.content) {
+      const active = allHabits.content.filter(habit => !habit.isDeleted);
+      setActiveHabits(active);
+    }
+  }, [allHabits]);
+
+  useEffect(() => {
+    if (activeHabits.length > 0 && success && content && content.content && content.content.length > 0) {
       const today = new Date();
       const startDate = period === "week" ? subDays(today, 6) : subDays(today, 29);
       const dates = eachDayOfInterval({ start: startDate, end: today });
 
-      const totalHabits = allHabits.content.length;
+      const totalActiveHabits = activeHabits.length;
 
       const data = dates.map((date) => {
         const dateString = format(date, "yyyy-MM-dd");
         let dailyCompleted = 0;
 
         content.content.forEach((habit) => {
-          // Ensure that the completedAt date is parsed correctly
           const habitCompletedAt = habit.completedAt ? new Date(habit.completedAt) : null;
+          const isActiveHabit = activeHabits.some(activeHabit => activeHabit.id === habit.habit.id);
 
-          if (habitCompletedAt && isSameDay(habitCompletedAt, date)) {
+          if (isActiveHabit && habitCompletedAt && isSameDay(habitCompletedAt, date)) {
             dailyCompleted += 1;
           }
         });
 
-        const completionRate = totalHabits > 0 ? (dailyCompleted / totalHabits) * 100 : 0;
+        const completionRate = totalActiveHabits > 0 ? (dailyCompleted / totalActiveHabits) * 100 : 0;
 
         return {
           date: dateString,
@@ -57,10 +63,10 @@ const HabitChartPage = () => {
 
       setChartData(data);
     }
-  }, [period, success, content, allHabits]);
+  }, [period, success, content, activeHabits]);
 
   if (loading) {
-    return <div className={styles.loading}>Loading...</div>; // Loading state
+    return <div className={styles.loading}>Loading...</div>;
   }
 
   if (error) {
@@ -69,18 +75,18 @@ const HabitChartPage = () => {
         <button className={styles.goBackButton} onClick={handleGoBack}>
           Back
         </button>
-        <p className={styles.errorMessage}>{error}</p> {/* Display error message */}
+        <p className={styles.errorMessage}>{error}</p>
       </div>
     );
   }
 
-  if (!content || !content.content || content.content.length === 0) {
+  if (!activeHabits || activeHabits.length === 0) {
     return (
       <div className={styles.habitChartPage}>
         <button className={styles.goBackButton} onClick={handleGoBack}>
           Back
         </button>
-        <p className={styles.noData}>No habit data available</p>
+        <p className={styles.noData}>No active habits available</p>
       </div>
     );
   }
@@ -96,17 +102,15 @@ const HabitChartPage = () => {
             <h1 className={styles.pageTitle}>Habit Progress</h1>
             <div className={styles.date}>Today: {format(new Date(), "MMMM d, yyyy")}</div>
 
-            <h2 className={styles.sectionTitle}>Your Habits:</h2>
+            <h2 className={styles.sectionTitle}>Your Active Habits:</h2>
             <ul className={styles.habitList}>
-              {content &&
-                content.content.length > 0 &&
-                content.content.map((habit, index) => (
-                  <li key={index} className={styles.habitItem}>
-                    <span className={styles.habitName}>{habit.habit.name}</span>
-                    <span className={styles.habitFrequency}>Frequency: {habit.habit.frequency || "N/A"}</span>
-                    <span className={styles.habitFrequency}>Category: {habit.habit.category.name}</span>
-                  </li>
-                ))}
+              {activeHabits.map((habit, index) => (
+                <li key={habit.id} className={styles.habitItem}>
+                  <span className={styles.habitName}>{habit.name}</span>
+                  <span className={styles.habitFrequency}>Frequency: {habit.frequency || "N/A"}</span>
+                  <span className={styles.habitFrequency}>Category: {habit.category?.name || "Uncategorized"}</span>
+                </li>
+              ))}
             </ul>
 
             <div className={styles.buttonContainer}>
