@@ -172,6 +172,7 @@ const HabitPage = () => {
       <div className="container">
         <div className="row justify-content-center mb-4">
           <div className="col-8 col-sm-6 col-md-4 mt-4">
+            <Notifications localHabit={localHabits} />
             <img src="/habit.svg" alt="Habit Icon" />
           </div>
         </div>
@@ -279,7 +280,6 @@ const HabitPage = () => {
           selectedHabitId={selectedHabitId}
         />
       </div>
-      <Notifications />
     </div>
   );
 };

@@ -115,7 +115,7 @@ export const updateHabitCompletion = (habitsId) => async (dispatch) => {
       },
     });
     console.log("Response status:", response.status);
-    console.log("Response body:", await response.json());
+
     const data = await response.json();
 
     if (!response.ok) {

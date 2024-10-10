@@ -27,7 +27,7 @@ const HabitChartPage = () => {
   });
 
   useEffect(() => {
-    if (success && content && content.content && content.content.length > 0) {
+    if (allHabits && success && content && content.content && content.content.length > 0) {
       const today = new Date();
       const startDate = period === "week" ? subDays(today, 6) : subDays(today, 29);
       const dates = eachDayOfInterval({ start: startDate, end: today });
