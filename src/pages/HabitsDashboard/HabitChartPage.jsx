@@ -98,13 +98,15 @@ const HabitChartPage = () => {
 
             <h2 className={styles.sectionTitle}>Your Habits:</h2>
             <ul className={styles.habitList}>
-              {content.content.map((habit, index) => (
-                <li key={index} className={styles.habitItem}>
-                  <span className={styles.habitName}>{habit.habit.name}</span>
-                  <span className={styles.habitFrequency}>Frequency: {habit.habit.frequency || "N/A"}</span>
-                  <span className={styles.habitFrequency}>Category: {habit.habit.category.name}</span>
-                </li>
-              ))}
+              {content &&
+                content.content.length > 0 &&
+                content.content.map((habit, index) => (
+                  <li key={index} className={styles.habitItem}>
+                    <span className={styles.habitName}>{habit.habit.name}</span>
+                    <span className={styles.habitFrequency}>Frequency: {habit.habit.frequency || "N/A"}</span>
+                    <span className={styles.habitFrequency}>Category: {habit.habit.category.name}</span>
+                  </li>
+                ))}
             </ul>
 
             <div className={styles.buttonContainer}>
