@@ -48,8 +48,10 @@ const HabitPage = () => {
   const { allHabits } = useSelector((state) => state.habits);
 
   useEffect(() => {
+    setIsLoading(true);
     if (allHabits && allHabits.content) {
       setLocalHabits(allHabits.content);
+      setIsLoading(false);
     }
   }, [allHabits]);
 
@@ -96,7 +98,14 @@ const HabitPage = () => {
   const handleCalendarToggle = () => setShowCalendar(!showCalendar);
 
   const toggleHabitCompletion = (id) => {
-    dispatch(updateHabitCompletion(id));
+    setIsLoading(true);
+    dispatch(updateHabitCompletion(id))
+      .then(() => {
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsLoading(false);
+      });
   };
 
   const handleChartNavigation = () => {
@@ -104,7 +113,14 @@ const HabitPage = () => {
   };
 
   const handleDeleteHabit = (habitId) => {
-    dispatch(DeleteHabit(habitId));
+    setIsLoading(true);
+    dispatch(DeleteHabit(habitId))
+      .then(() => {
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsLoading(false);
+      });
   };
 
   const handleEditClick = (habit) => {
