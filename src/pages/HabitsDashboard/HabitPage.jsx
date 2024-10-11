@@ -24,7 +24,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { DeleteHabit, fetchProtectedResource, updateHabitCompletion } from "../../redux/action/habit";
 
 import CreateHabit from "./CreateHabit";
-import UpdateHabit from "./Updatehabit";
+import UpdateHabit from "./UpdateHabit";
 
 import CalendarModal from "./CalendarModal";
 import ShareHabit from "./ShareHabit";
