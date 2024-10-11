@@ -29,72 +29,73 @@ const UpdateHabit = ({ styles, setSelectedHabitId, setHabitsUpdate, setIsLoading
   // Inline styles
   const inlineStyles = {
     container: {
-      backgroundColor: '#5251B5',
-      padding: '20px',
-      borderRadius: '8px',
-      maxWidth: '600px',
-      margin: 'auto',
+      backgroundColor: "#5251B5",
+      padding: "20px",
+      borderRadius: "8px",
+      maxWidth: "600px",
+      margin: "auto",
     },
     form: {
-      display: 'grid',
-      gap: '20px',
+      display: "grid",
+      gap: "20px",
     },
     formGroup: {
-      display: 'flex',
-      flexDirection: 'column',
+      display: "flex",
+      flexDirection: "column",
     },
     inputField: {
-      padding: '8px',
-      border: '1px solid #ccc',
-      borderRadius: '4px',
-      backgroundColor: '#8E97FD',
-      color: '#333',
+      padding: "8px",
+      border: "1px solid #ccc",
+      borderRadius: "4px",
+      backgroundColor: "#8E97FD",
+      color: "#333",
     },
     checkboxGroup: {
-      display: 'flex',
-      justifyContent: 'space-between',
+      display: "flex",
+      justifyContent: "space-between",
     },
     checkboxLabel: {
-      display: 'flex',
-      alignItems: 'center',
+      display: "flex",
+      alignItems: "center",
     },
     checkboxInput: {
-      marginRight: '8px',
+      marginRight: "8px",
     },
     actionButtons: {
-      display: 'flex',
-      justifyContent: 'space-between',
+      display: "flex",
+      justifyContent: "space-between",
     },
     saveButton: {
-      padding: '10px 20px',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '16px',
-      backgroundColor: '#A0A6FF',
-      color: '#fff',
+      padding: "10px 20px",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+      fontSize: "16px",
+      backgroundColor: "#A0A6FF",
+      color: "#fff",
     },
     cancelButton: {
-      padding: '10px 20px',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '16px',
-      backgroundColor: '#4c5085',
-      color: '#fff',
+      padding: "10px 20px",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+      fontSize: "16px",
+      backgroundColor: "#4c5085",
+      color: "#fff",
     },
+
     responsive: {
-      '@media (max-width: 768px)': {
+      "@media (max-width: 768px)": {
         form: {
-          gridTemplateColumns: '1fr',
+          gridTemplateColumns: "1fr",
         },
         checkboxGroup: {
-          flexDirection: 'column',
-          alignItems: 'flex-start',
+          flexDirection: "column",
+          alignItems: "flex-start",
         },
         actionButtons: {
-          flexDirection: 'column',
-          gap: '10px',
+          flexDirection: "column",
+          gap: "10px",
         },
       },
     },
@@ -149,11 +150,11 @@ const UpdateHabit = ({ styles, setSelectedHabitId, setHabitsUpdate, setIsLoading
           </select>
         </div>
 
-        <div style={inlineStyles.checkboxGroup}>
+        <div style={inlineStyles.checkboxGroup} className={"customCheckbox"}>
           <label style={inlineStyles.checkboxLabel}>
             <input
               type="checkbox"
-              style={inlineStyles.checkboxInput}
+              // style={inlineStyles.checkboxInput}
               checked={editedHabit.reminder}
               onChange={(e) => setEditedHabit({ ...editedHabit, reminder: e.target.checked })}
             />
@@ -163,8 +164,9 @@ const UpdateHabit = ({ styles, setSelectedHabitId, setHabitsUpdate, setIsLoading
           <label style={inlineStyles.checkboxLabel}>
             <input
               type="checkbox"
-              style={inlineStyles.checkboxInput}
+              // style={inlineStyles.checkboxInput}
               checked={editedHabit.completed}
+              className={"customCheckbox"}
               onChange={(e) => setEditedHabit({ ...editedHabit, completed: e.target.checked })}
             />
             Completed

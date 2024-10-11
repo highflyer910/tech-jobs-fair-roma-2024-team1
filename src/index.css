@@ -1,5 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
-
+@import "../src/pages/HabitsDashboard/HabitPage.module.css";
+@import "../src/pages/HabitsDashboard/HabitChartPage.module.css";
+@import "../src/pages/HabitsDashboard/Update.css";
+@import "../src/pages/HabitsDashboard/Notification.css";
 html,
 body {
   font-family: "Rubik", sans-serif;

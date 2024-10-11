@@ -27,7 +27,7 @@ const HabitChartPage = () => {
 
   useEffect(() => {
     if (allHabits && allHabits.content) {
-      const active = allHabits.content.filter(habit => !habit.isDeleted);
+      const active = allHabits.content.filter((habit) => !habit.isDeleted);
       setActiveHabits(active);
     }
   }, [allHabits]);
@@ -46,7 +46,7 @@ const HabitChartPage = () => {
 
         content.content.forEach((habit) => {
           const habitCompletedAt = habit.completedAt ? new Date(habit.completedAt) : null;
-          const isActiveHabit = activeHabits.some(activeHabit => activeHabit.id === habit.habit.id);
+          const isActiveHabit = activeHabits.some((activeHabit) => activeHabit.id === habit.habit.id);
 
           if (isActiveHabit && habitCompletedAt && isSameDay(habitCompletedAt, date)) {
             dailyCompleted += 1;
@@ -104,7 +104,7 @@ const HabitChartPage = () => {
 
             <h2 className={styles.sectionTitle}>Your Active Habits:</h2>
             <ul className={styles.habitList}>
-              {activeHabits.map((habit, index) => (
+              {activeHabits.map((habit) => (
                 <li key={habit.id} className={styles.habitItem}>
                   <span className={styles.habitName}>{habit.name}</span>
                   <span className={styles.habitFrequency}>Frequency: {habit.frequency || "N/A"}</span>

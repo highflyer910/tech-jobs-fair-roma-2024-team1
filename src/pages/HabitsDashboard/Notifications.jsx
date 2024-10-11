@@ -42,9 +42,9 @@ const Notifications = ({ localHabit }) => {
   }, [filteredNotification]);
   return (
     <div>
-      <Toast show={showToast} onClose={() => setShowToast(false)}>
-        <Toast.Header>
-          <strong className="me-auto">Notification</strong>
+      <Toast show={showToast} onClose={() => setShowToast(false)} className="toastBody position-fixed top-0 start-50 translate-middle-x ">
+        <Toast.Header className="toastHeader">
+          <strong className="me-auto">Alert</strong>
         </Toast.Header>
         <Toast.Body>
           {" "}
