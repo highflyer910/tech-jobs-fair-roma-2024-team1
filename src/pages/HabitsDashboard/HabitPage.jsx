@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "react-calendar/dist/Calendar.css";
 
@@ -32,6 +32,7 @@ import Notifications from "./Notifications";
 
 const HabitPage = () => {
   const [dates, setDates] = useState([]);
+  const [isFetchCompleted, setIsFetchCompleted] = useState(false);
   const [tokenAvailable, setTokenAvailable] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -45,16 +46,13 @@ const HabitPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { allHabits } = useSelector((state) => state.habits);
+  const { allHabits, loading } = useSelector((state) => state.habits);
 
   useEffect(() => {
-    setIsLoading(true);
-    if (allHabits && allHabits.content) {
-      setLocalHabits(allHabits.content);
-      setIsLoading(false);
+    if (!loading) {
+      setLocalHabits(allHabits?.content || []);
     }
-  }, [allHabits]);
-
+  }, [allHabits, loading]);
   const getCalendarDates = () => {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const dateArray = [];
@@ -83,10 +81,13 @@ const HabitPage = () => {
   }, []);
 
   useEffect(() => {
-    if (tokenAvailable) {
-      dispatch(fetchProtectedResource());
+    // Esegui il fetch solo se il token è disponibile e il fetch non è stato ancora completato
+    if (tokenAvailable && !isFetchCompleted) {
+      dispatch(fetchProtectedResource()).then(() => {
+        setIsFetchCompleted(true); // Segna il fetch come completato
+      });
     }
-  }, [tokenAvailable, dispatch]);
+  }, [tokenAvailable, isFetchCompleted, dispatch]);
 
   const handleModalToggle = () => {
     setShowModal(!showModal);
@@ -113,14 +114,17 @@ const HabitPage = () => {
   };
 
   const handleDeleteHabit = (habitId) => {
-    setIsLoading(true);
-    dispatch(DeleteHabit(habitId))
-      .then(() => {
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setIsLoading(false);
-      });
+    const confirmDelete = window.confirm("Are you sure you want to delete this habit?");
+    if (confirmDelete) {
+      setIsLoading(true);
+      dispatch(DeleteHabit(habitId))
+        .then(() => {
+          setIsLoading(false);
+        })
+        .catch(() => {
+          setIsLoading(false);
+        });
+    }
   };
 
   const handleEditClick = (habit) => {

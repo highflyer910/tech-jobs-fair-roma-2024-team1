@@ -7,3 +7,27 @@ html,
 body {
   font-family: "Rubik", sans-serif;
 }
+.rbc-btn-group {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.rbc-btn-group > button {
+  border-radius: 15px;
+  border-color: transparent;
+}
+
+.rbc-btn-group > button:focus,
+.rbc-active {
+  background-color: #8e97fd;
+}
+.rbc-toolbar button.rbc-active {
+  border-color: transparent;
+  background-color: #8e97fd;
+}
+
+.rbc-toolbar button.rbc-active:focus {
+  border-color: transparent;
+  background-color: #8e97fd;
+}

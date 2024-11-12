@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateHabit } from "../../redux/action/habit";
 
-const UpdateHabit = ({ styles, setSelectedHabitId, setHabitsUpdate, setIsLoading, habit }) => {
+const UpdateHabit = ({ setSelectedHabitId, setHabitsUpdate, setIsLoading, habit }) => {
   const [editedHabit, setEditedHabit] = useState({
     name: habit.name,
     frequency: habit.frequency,

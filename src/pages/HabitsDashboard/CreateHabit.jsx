@@ -11,7 +11,8 @@ const CreateHabit = ({ showModal, handleModalToggle, setShowModal, styles }) => 
   const [selectedCategory, setSelectedCategory] = useState("");
   const [reminder, setReminder] = useState(false);
   const [selectedFrequency, setSelectedFrequency] = useState("");
-  const { loading, content, success } = useSelector((state) => state.category);
+  const [message, setMessage] = useState(null);
+  const { content } = useSelector((state) => state.category);
 
   const dispatch = useDispatch();
   const handleSaveHabit = (e) => {
@@ -30,9 +31,29 @@ const CreateHabit = ({ showModal, handleModalToggle, setShowModal, styles }) => 
       completed: false,
     };
 
-    dispatch(AddNewHabits(newHabit));
-    setShowModal(false);
+    dispatch(AddNewHabits(newHabit))
+      .then(() => {
+        setMessage("Habit saved successfully!"); // Messaggio di successo
+        resetForm();
+        setTimeout(() => {
+          setMessage(null);
+          setShowModal(false);
+        }, 3000); // Chiudi modale dopo 3 secondi
+      })
+      .catch(() => {
+        setMessage("Failed to save habit. Please try again."); // Messaggio di errore
+        setTimeout(() => setMessage(null), 3000); // Nascondi messaggio dopo 3 secondi
+      });
   };
+  const resetForm = () => {
+    setNewHabitName("");
+    setSelectedCategory("");
+    setShowFrequency(false);
+    setSelectedFrequency("");
+    setReminder(false);
+    setNameError("");
+  };
+
   useEffect(() => {
     dispatch(GetCategories());
   }, [dispatch]);
@@ -121,6 +142,7 @@ const CreateHabit = ({ showModal, handleModalToggle, setShowModal, styles }) => 
               Save Habit
             </Button>
           </Form>
+          {message && <div className="alert alert-success mt-3">{message}</div>}
         </Modal.Body>
       </Modal>
     </>
