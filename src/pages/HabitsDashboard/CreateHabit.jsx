@@ -55,7 +55,10 @@ const CreateHabit = ({ showModal, handleModalToggle, setShowModal, styles }) => 
   };
 
   useEffect(() => {
-    dispatch(GetCategories());
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      dispatch(GetCategories());
+    }
   }, [dispatch]);
   return (
     <>
